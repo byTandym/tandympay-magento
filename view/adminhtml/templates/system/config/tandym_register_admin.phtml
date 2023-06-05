@@ -1,0 +1,34 @@
+<?php
+/*
+ * @category    Tandym
+ * @package     Tandym_Tandympay
+ * @copyright   Copyright (c) Tandym (https://www.bytandym.com/)
+ */
+?>
+<?php
+use Tandym\Tandympay\Block\Adminhtml\System\Config\TandymRegisterAdmin;
+/** @var $block TandymRegisterAdmin */
+?>
+<div style="background-color:#eee;padding:1em;border:1px solid #ddd;">
+Module Version : <?php echo $block->getTandymModuleVersion(); ?>
+</div>
+<div id="tandym_config">
+    <br/>
+    <div data-mage-init='{
+        "Tandym_Tandympay/js/config": <?php echo /* @noEscape */
+    $block->getJsonConfig() ?> }'
+         id="tandym_config">
+
+        <span class="tandym-register">
+          <button>
+              <span><?= $block->escapeHtml(__('Register for Tandym')); ?></span>
+          </button>
+        </span>
+        <span class="tandym-or">
+        &nbsp; <?= $block->escapeHtml(__('or')); ?> &nbsp;
+          <a href="#" id="tandym-config-skip">
+            <?= $block->escapeHtml(__("I've already setup Tandym, I want to edit my settings")); ?>
+          </a>
+        </span>
+    </div>
+</div>

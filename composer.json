@@ -1,0 +1,25 @@
+{
+    "name": "tandym/tandympay",
+    "description": "Tandym Payments extension for Magento 2",
+    "type": "magento2-module",
+    "homepage": "https://bytandym.com/",
+    "keywords": [
+        "tandym",
+        "magento",
+        "magento 2",
+        "plugin",
+        "extension",
+        "payment",
+        "gateway"
+    ],
+    "version": "1.0.0",
+    "license": "Apache-2.0",
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "Tandym\\Tandympay\\": ""
+        }
+    }
+}

@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!--
+/*
+ * @category    Tandym
+ * @package     Tandym_Tandympay
+ * @copyright   Copyright (c) Tandym (https://www.bytandym.com/)
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="1column" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="content">
+            <block class="Tandym\Tandympay\Block\Onepage\Success" name="tandym.checkout.success" template="Tandym_Tandympay::checkout/onepage/success.phtml" cacheable="false"/>
+        </referenceContainer>
+    </body>
+</page>

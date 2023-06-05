@@ -1,0 +1,25 @@
+<?php
+/*
+ * @category    Tandym
+ * @package     Tandym_Tandympay
+ * @copyright   Copyright (c) Tandym (https://www.bytandym.com/)
+ */
+?>
+<?php
+use Tandym\Tandympay\Block\Widget\Cart;
+/** @var $block Cart */
+?>
+<?php if ($block->isWidgetEnabledForCartPage()) : ?>
+
+<?php 
+$cartPrice = $block->getGrandTotal() * 100;
+$publicKey = $block->getPublicKey();
+?>
+
+<div id="tandym-magento-pdp-mapps">
+<script src="https://assets.platform.bytandym.com/mapps-assets/magento/tandym-mapps-magento-v1.js?tandym_api_key=<?php echo $publicKey; ?>" src_type="url"></script>
+<tandym-mapps data-tandym-widget='CART' data-tandym-cart-total='<?php echo $cartPrice ?>'></tandym-mapps>
+</div>
+
+
+<?php endif; ?>

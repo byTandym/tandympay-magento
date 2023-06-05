@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<!--
+/*
+ * @category    Tandym
+ * @package     Tandym_Tandympay
+ * @copyright   Copyright (c) Tandym (https://www.bytandym.com/)
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+	<preference for="Tandym\Tandympay\Model\Api\ProcessorInterface" type="Tandym\Tandympay\Model\Api\Processor"/>
+	<preference for="Tandym\Tandympay\Model\System\Config\Container\TandymConfigInterface" type="Tandym\Tandympay\Model\System\Config\Container\TandymIdentity"/>
+    <preference for="Tandym\Tandympay\Api\Data\AddressInterface" type="Tandym\Tandympay\Model\Api\Data\Address"/>
+    <preference for="Tandym\Tandympay\Api\Data\AmountInterface" type="Tandym\Tandympay\Model\Api\Data\Amount"/>
+    <preference for="Tandym\Tandympay\Api\Data\AuthorizationInterface" type="Tandym\Tandympay\Model\Api\Data\Authorization"/>
+    <preference for="Tandym\Tandympay\Api\Data\CustomerInterface" type="Tandym\Tandympay\Model\Api\Data\Customer"/>
+    <preference for="Tandym\Tandympay\Api\Data\OrderInterface" type="Tandym\Tandympay\Model\Api\Data\Order"/>
+    <preference for="Tandym\Tandympay\Api\Data\PaymentActionInterface" type="Tandym\Tandympay\Model\Api\Data\PaymentAction"/>
+    <preference for="Tandym\Tandympay\Api\Data\SessionInterface" type="Tandym\Tandympay\Model\Api\Data\Session"/>
+    <preference for="Tandym\Tandympay\Api\Data\SessionOrderInterface" type="Tandym\Tandympay\Model\Api\Data\SessionOrder"/>
+    <preference for="Tandym\Tandympay\Api\Data\SessionTokenizeInterface" type="Tandym\Tandympay\Model\Api\Data\SessionTokenize"/>
+    <preference for="Tandym\Tandympay\Api\Data\LinkInterface" type="Tandym\Tandympay\Model\Api\Data\Link"/>
+    <preference for="Tandym\Tandympay\Api\V2Interface" type="Tandym\Tandympay\Model\Api\V2"/>
+    <preference for="Tandym\Tandympay\Api\OrderManagementInterface" type="Tandym\Tandympay\Model\OrderManagement"/>
+    <preference for="Tandym\Tandympay\Api\GuestOrderManagementInterface" type="Tandym\Tandympay\Model\GuestOrderManagement"/>
+
+    <type name="Tandym\Tandympay\Logger\Handler">
+        <arguments>
+            <argument name="filesystem" xsi:type="object">Magento\Framework\Filesystem\Driver\File</argument>
+        </arguments>
+    </type>
+    <type name="Tandym\Tandympay\Logger\Logger">
+        <arguments>
+            <argument name="name" xsi:type="string">tandym</argument>
+            <argument name="handlers"  xsi:type="array">
+                <item name="system" xsi:type="object">Tandym\Tandympay\Logger\Handler</item>
+            </argument>
+        </arguments>
+    </type>
+</config>

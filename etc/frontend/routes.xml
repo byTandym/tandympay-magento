@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!--
+/*
+ * @category    Tandym
+ * @package     Tandym_Tandympay
+ * @copyright   Copyright (c) Tandym (https://www.bytandym.com/)
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:App/etc/routes.xsd">
+    <router id="standard">
+        <route id="tandym" frontName="tandym">
+            <module name="Tandym_Tandympay" />
+        </route>
+    </router>
+</config>

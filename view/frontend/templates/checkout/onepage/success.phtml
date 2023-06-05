@@ -1,0 +1,32 @@
+<?php
+/*
+ * @category    Tandym
+ * @package     Tandym_Tandympay
+ * @copyright   Copyright (c) Tandym (https://www.bytandym.com/)
+ */
+?>
+<?php
+use Tandym\Tandympay\Block\Onepage\Success;
+/** @var $block Success */
+?>
+<?php if ($block->isTandymOrder()) : ?>
+<script>
+    require([
+        'Magento_Customer/js/customer-data'
+    ], function(customerData) {
+        var clearData = {
+            'selectedShippingAddress': null,
+            'shippingAddressFromData': null,
+            'newCustomerShippingAddress': null,
+            'selectedShippingRate': null,
+            'selectedPaymentMethod': null,
+            'selectedBillingAddress': null,
+            'billingAddressFromData': null,
+            'newCustomerBillingAddress': null
+        };
+
+        customerData.set('checkout-data', clearData);
+        customerData.invalidate(['cart']);
+    })
+</script>
+<?php endif; ?>

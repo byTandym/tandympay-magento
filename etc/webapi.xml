@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!--
+/*
+ * @category    Tandym
+ * @package     Tandym_Tandympay
+ * @copyright   Copyright (c) Tandym (https://www.bytandym.com/)
+ */
+-->
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
+
+    <!-- Create Tandym Checkout -->
+    <route url="/V1/tandym/carts/mine/checkout" method="POST">
+        <service class="Tandym\Tandympay\Api\OrderManagementInterface" method="createCheckout"/>
+        <resources>
+            <resource ref="self" />
+        </resources>
+        <data>
+            <parameter name="cartId" force="true">%cart_id%</parameter>
+        </data>
+    </route>
+
+    <!-- Create Guest Tandym Checkout -->
+    <route url="/V1/tandym/guest-carts/:cartId/checkout" method="POST">
+        <service class="Tandym\Tandympay\Api\GuestOrderManagementInterface" method="createCheckout"/>
+        <resources>
+            <resource ref="anonymous" />
+        </resources>
+    </route>
+</routes>

@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<!--
+/*
+ * @category    Tandym
+ * @package     Tandym_Tandympay
+ * @copyright   Copyright (c) Tandym (https://www.bytandym.com/)
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <payment>
+            <tandympay>
+		        <active>1</active>
+                <model>Tandym\Tandympay\Model\Tandym</model>
+                <order_status>pending</order_status>
+                <merchant_country>US</merchant_country>
+                <payment_mode>sandbox</payment_mode>
+                <log_tracker>1</log_tracker>
+                <payment_action>authorize_capture</payment_action>
+                <sort_order>0</sort_order>
+                <title>Tandym</title>
+                <widget_pdp>0</widget_pdp>
+                <widget_cart>0</widget_cart>
+	        </tandympay>
+        </payment>
+        <csp>
+            <policies>
+                <storefront>
+                    <frame-ancestors>
+                        <inline>0</inline>
+                    </frame-ancestors>
+                </storefront>
+                <admin>
+                    <frame-ancestors>
+                        <inline>0</inline>
+                    </frame-ancestors>
+                </admin>
+            </policies>
+        </csp>
+    </default>
+</config>
