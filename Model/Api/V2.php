@@ -277,7 +277,7 @@ class V2 implements V2Interface
     /**
      * @inheritDoc
      */
-    public function refundonerror($transId, $orderUUID, $amount) {
+    public function refundonerror($transId, $orderUUID, $amount, $reason) {
         $url = self::TANDYM_REFUND_URL;
         
         $apiKey = $this->tandymConfig->getPublicKey();
@@ -290,7 +290,8 @@ class V2 implements V2Interface
             "transaction_receipt"=> $transId ,
             "amounttotal" => (int)$amount,
             "currency" => "USD",
-            "refundType" => "ORDER FAILURE"
+            "refundType" => "ORDER FAILURE",
+            "refundReason" => $reason
         ];
         try {
             $response = $this->apiProcessor->call(

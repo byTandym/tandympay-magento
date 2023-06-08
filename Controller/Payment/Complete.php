@@ -60,35 +60,32 @@ class Complete extends Tandymv2
                 $this->tandymHelper->logTandymActions("Order Creation Failed to Session Timeout");
                 $transaction_error = 1;
                 $transaction_error_message = "Invalid Request/Session";
-                $failRespose = $this->handleOrderFailure($tandymOrderID,$referenceID,$tandymOrderAmount );
-                
                 throw new LocalizedException(__('Session has timed out. Please re-login to complete the order.'));
                 
-
             }
         } catch (CouldNotSaveException $e) {
-            $this->tandymHelper->logTandymActions("11. Order Creation Failed to Session Timeout");
+            $this->tandymHelper->logTandymActions("11. Order Creation Failure - CouldNotSaveException");
             $transaction_error = 11;
             $transaction_error_message = "11. Invalid Request/Session";
-            $failRespose = $this->handleOrderFailure($tandymOrderID,$referenceID,$tandymOrderAmount );
+            $failRespose = $this->handleOrderFailure($tandymOrderID,$referenceID,$tandymOrderAmount, "CouldNotSaveException" );
             $this->handleException($e);
         } catch (NoSuchEntityException $e) {
-            $this->tandymHelper->logTandymActions("12. Order Creation Failed to Session Timeout");
+            $this->tandymHelper->logTandymActions("12. Order Creation Failure - NoSuchEntityException");
             $transaction_error = 12;
             $transaction_error_message = "12. Invalid Request/Session";
-            $failRespose = $this->handleOrderFailure($tandymOrderID,$referenceID,$tandymOrderAmount );
+            $failRespose = $this->handleOrderFailure($tandymOrderID,$referenceID,$tandymOrderAmount, "NoSuchEntityException" );
             $this->handleException($e);
         } catch (LocalizedException $e) {
-            $this->tandymHelper->logTandymActions("13. Order Creation Failed to Session Timeout");
+            $this->tandymHelper->logTandymActions("13. Order Creation Failure - LocalizedException");
             $transaction_error = 13;
             $transaction_error_message = "13. Invalid Request/Session";
-            $failRespose = $this->handleOrderFailure($tandymOrderID,$referenceID,$tandymOrderAmount );
+            $failRespose = $this->handleOrderFailure($tandymOrderID,$referenceID,$tandymOrderAmount, "LocalizedException" );
             $this->handleException($e);
         } catch (Exception $e) {
-            $this->tandymHelper->logTandymActions("14. Order Creation Failed to Generic  Exception");
+            $this->tandymHelper->logTandymActions("14. Order Creation Failure - GenericException");
             $transaction_error = 13;
             $transaction_error_message = "13. Invalid Request/Session";
-            $failRespose = $this->handleOrderFailure($tandymOrderID,$referenceID,$tandymOrderAmount );
+            $failRespose = $this->handleOrderFailure($tandymOrderID,$referenceID,$tandymOrderAmount, "GenericException" );
             $this->handleException($e);
         }
 
@@ -108,14 +105,15 @@ class Complete extends Tandymv2
         );
     }
 
-    private function handleOrderFailure($tandymOrderUUID, $tandymReceipt, $amount)
+    private function handleOrderFailure($tandymOrderUUID, $tandymReceipt, $amount, $reason)
     {
 
         $refundTxnUUID = "";
         $refundTxnUUID = $this->v2->refundonerror(
             $tandymReceipt,
             $tandymOrderUUID,
-            $amount
+            $amount,
+            $reason
         );
 
         return $refundTxnUUID;

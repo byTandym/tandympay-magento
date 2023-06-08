@@ -45,9 +45,9 @@ interface V2Interface
      * @param string $url
      * @param string $orderUUID
      * @param int $amount
-    
+     * @param string $reason
      */
-    public function refundonerror($transId, $orderUUID, $amount);
+    public function refundonerror($transId, $orderUUID, $amount, $reason);
 
     /**
      * Validate payment by Order uuid
