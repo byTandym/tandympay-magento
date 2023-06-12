@@ -152,6 +152,18 @@ class PDP extends View
             false
         );
     }
-
+    /**
+     * Get Payment Mode
+     *
+     * @return string|null
+     */
+    public function getPaymentMode()
+    {
+        try {
+            return $this->tandymConfig->getPaymentMode();
+        } catch (NoSuchEntityException $e) {
+            return null;
+        }
+    }
     
 }

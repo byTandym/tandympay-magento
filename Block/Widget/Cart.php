@@ -140,5 +140,19 @@ class Cart extends \Magento\Checkout\Block\Cart
             return null;
         }
     }
+
+    /**
+     * Get Payment Mode
+     *
+     * @return string|null
+     */
+    public function getPaymentMode()
+    {
+        try {
+            return $this->tandymConfig->getPaymentMode();
+        } catch (NoSuchEntityException $e) {
+            return null;
+        }
+    }
    
 }

@@ -16,10 +16,10 @@ use Tandym\Tandympay\Block\Widget\PDP;
 <?php 
 $itemPrice = $block->getItemPrice() * 100;
 $publicKey = $block->getPublicKey();
+$paymentMode = $block->getPaymentMode();
 ?>
 <!-- <div id="tandym-magento-pdp-mapps"> -->
-<script src="https://assets.platform.bytandym.com/mapps-assets/magento/tandym-mapps-magento-v1.js?tandym_api_key=<?php echo $publicKey; ?>" src_type="url"></script>
-
+<script src="https://assets.platform.bytandym.com/mapps-assets/magento/tandym-mapps-magento-v1.js?tandym_api_key=<?php echo $publicKey; ?>&mode=<?php echo $paymentMode; ?>" src_type="url"></script>
 <tandym-mapps data-tandym-widget='PDP' data-tandym-product-price='<?php echo $itemPrice ?>'></tandym-mapps>
 
 <!-- <div> -->
