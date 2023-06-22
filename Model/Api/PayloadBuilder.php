@@ -114,8 +114,8 @@ class PayloadBuilder
             "paymentsuccessurl"=> $this->tandymConfig->getCompleteUrl(),
             "paymentdeclinedurl"=> $this->tandymConfig->getCancelUrl(),
             "testMode"=> $testMode,
-            "paymentMode"=>$this->tandymConfig->getPaymentMode()
-
+            "paymentMode"=>$this->tandymConfig->getPaymentMode(),
+            "checkoutMode" => "IFRAME"
         ];
         
         return $orderPayload;

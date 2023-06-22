@@ -6,14 +6,10 @@ This document will help you in installing `Tandym's Magento 2` extension.
 
 
 ## How to install the extension?
-
-
-### Manual
-* Download the .zip or tar.gz file from `Tandym's`.
-* Unzip the file and follow the following instructions.
-* Navigate to `Magento` `[Magento]/app/code/` either through `SFTP` or `SSH`.
-* Copy `Tandym` directory from unzipped folder to `[Magento]/app/code/`.
+### Using Composer
 * Open the terminal.
+* Run the following command in the root directory of `Magento`:
+```composer require tandym/tandympay```
 * Run the following command to enable `Tandym`:
 ```php bin/magento module:enable Tandym_Tandympay```
 * Run the `Magento` setup upgrade:
