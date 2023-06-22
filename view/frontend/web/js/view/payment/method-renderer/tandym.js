@@ -115,7 +115,54 @@ define(
                 if (this.validate()
                     && additionalValidators.validate()
                     && this.isPlaceOrderActionAllowed() === true) {
-                    this.handleRedirectAction();
+                        this.handleiFrameCheckout();
+                }
+            },
+            /**
+             * Handle iFrame Checkout
+             */
+            handleiFrameCheckout: function () {
+                var self = this;
+
+                self.isPlaceOrderActionAllowed(false);
+
+                this.getCreateTandymCheckoutDeferredObject()
+                    .done(
+                        function (response) {
+                            var jsonResponse = $.parseJSON(response);
+                            var stylesheet = $("<link>", {
+                                rel: "stylesheet",
+                                type: "text/css",
+                                href: "https://assets.platform.bytandym.com/mapps-assets/magento/tandym-mapps-magento-v1.css"
+                            });
+                            stylesheet.appendTo("head");
+                            $("#modal_tandym_lightbox").addClass("modal_lightbox-on");
+                            $('#tandymPayiFrame').attr('src', jsonResponse.checkout_url);
+                            
+                        }
+                    ).always(
+                    function () {
+                        self.isPlaceOrderActionAllowed(true);
+                    }
+                );
+            },
+            /**
+             * Show / Hide Tandym Modal
+             * 
+             */
+            showHideTandym: function(data, event) {
+                if (event) {
+                    event.preventDefault();
+                }
+
+                var cssName = $('#modal_tandym_lightbox').attr('class');
+
+                if (cssName == "widget_modal_lightbox modal_lightbox-on") {
+                    $('#tandymPayiFrame').attr('src', "");
+                    $("#modal_tandym_lightbox").removeClass("modal_lightbox-on");
+                    fullScreenLoader.stopLoader(); 
+                } else {
+                  
                 }
             }
         });
