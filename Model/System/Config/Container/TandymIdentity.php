@@ -244,7 +244,7 @@ class TandymIdentity extends Container implements TandymConfigInterface
     {
         return $this->urlBuilder
             ->getUrl(
-                "tandym/payment/cancel/",
+                "checkout/cart/",
                 ['_secure' => true]
             );
 
