@@ -240,7 +240,7 @@ class TandymIdentity extends Container implements TandymConfigInterface
     /**
      * @inheritdoc
      */
-    public function getCancelUrl()
+    public function getCartUrl()
     {
         return $this->urlBuilder
             ->getUrl(
