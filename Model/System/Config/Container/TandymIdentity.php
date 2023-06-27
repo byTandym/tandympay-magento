@@ -236,7 +236,20 @@ class TandymIdentity extends Container implements TandymConfigInterface
 
         
     }
+    
+    /**
+     * @inheritdoc
+     */
+    public function getCancelUrl()
+    {
+        return $this->urlBuilder
+            ->getUrl(
+                "tandym/payment/cancel/",
+                ['_secure' => true]
+            );
 
+        
+    }
     /**
      * @inheritdoc
      */

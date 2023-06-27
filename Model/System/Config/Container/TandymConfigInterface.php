@@ -157,7 +157,11 @@ interface TandymConfigInterface extends IdentityInterface
      * @return string
      */
     public function getCancelUrl();
-
+    /**
+     * Get cart url
+     * @return string
+     */
+    public function getCartUrl();
     /**
      * Get tokenize payment complete url
      * @return string
