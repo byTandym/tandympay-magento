@@ -21,22 +21,6 @@ This document will help you in installing `Tandym's Magento 2` extension.
 * Login to `Magento` Admin and navigate to `System > Cache Management`.
 * Flush the cache storage by selecting `Flush Cache Storage`.
 
-## How to update the extension?
-### Using Composer
-* Open the terminal.
-* Run the following command in the root directory of `Magento`:
-```composer update tandym/tandympay```
-* Run the following command to enable `Tandym`:
-```php bin/magento module:enable Tandym_Tandympay```
-* Run the `Magento` setup upgrade:
-```php bin/magento setup:upgrade```
-* Run the `Magento` Dependencies Injection Compile:
-```php bin/magento setup:di:compile```
-* Run the `Magento` Static Content deployment:
-```php bin/magento setup:static-content:deploy -f```
-* Login to `Magento` Admin and navigate to `System > Cache Management`.
-* Flush the cache storage by selecting `Flush Cache Storage`.
-
 ## Configure Tandym
 
 
@@ -58,8 +42,9 @@ This document will help you in installing `Tandym's Magento 2` extension.
 
 
 * Set `Enable Tandym Widget in Product Page` to `Yes` for adding widget script in the Product Display Page which will help in enabling `Tandym MApps Widget` Modal in PDP.
-* Set `Enable Tandym Widget Cart Page` to `Yes` for adding widget script in the Cart Page which will help in enabling `Tandym MApps Widget` Modal in Cart Page.
+* Set `Enable Tandym Widget in Cart Page` to `Yes` for adding widget script in the Cart Page which will help in enabling `Tandym MApps Widget` Modal in Cart Page.
 * Set `Enable Express Checkout in Cart Page` to `Yes` for adding Express Checkout in the Cart Page which will help in enabling `Tandym Express Checkout` Modal in Cart Page.
+* Enabling Express Checkout will automatically disable Tandym Widget in Cart Page
 * Set the `Express Checkout Button Image URL` to the `Image URL provided by Tandym` for Express Checkout Button.
 * Save the configuration and clear the cache.
 
