@@ -16,6 +16,11 @@ class ConfigChange implements ObserverInterface
     const TANDYM_LIVE_PROGRAM_ENDPOINT = "https://api.bytandym.com/merchants/program/details";
     const TANDYM_STAGING_PROGRAM_ENDPOINT = "https://api.staging.poweredbytandym.com/merchants/program/details";
     const TANDYM_MIDDLEWARE_PROGRAM_ENDPOINT = "https://magento.api.platform.poweredbytandym.com/program-info";
+    const TANDYM_MIDDLEWARE_PROGRAM_REGISTER_ENDPOINT = "https://magento.api.platform.poweredbytandym.com/program-info/register";
+    const TANDYM_STAGING_EXPRESS_PROGRAM_ENDPOINT = "https://stagingapi.platform.poweredbytandym.com/merchants/register";
+    const TANDYM_LIVE_EXPRESS_PROGRAM_ENDPOINT = "https://plugin.api.platform.poweredbytandym.com/merchants/register";
+    
+
     /**
      * @var JsonHelper
      */
@@ -76,46 +81,56 @@ class ConfigChange implements ObserverInterface
         $tandym_payment_mode = $this->tandymConfig->getPaymentMode();
         $response = "";
 
+        $requestToSend = [];
+        if ($tandym_payment_mode == "sandbox") {
+            $requestToSend = [
+                'testMode' => true
+            ];
+        } else {
+            $requestToSend = [
+                'testMode' => false
+            ];
+        }
+
         try {
             if ($tandym_public_key != "" && $tandym_secret_key != "") {
-                if ($tandym_payment_mode == "sandbox") {
-                    $url = self::TANDYM_STAGING_PROGRAM_ENDPOINT;
-                } else {
-                    $url = self::TANDYM_LIVE_PROGRAM_ENDPOINT;
-                }
+                    
+                $this->tandymHelper->logTandymActions("Registering with TANDYM Middleware");
+                $url = self::TANDYM_MIDDLEWARE_PROGRAM_REGISTER_ENDPOINT;
                 $this->curl->addHeader("apikey", $tandym_public_key);
                 $this->curl->addHeader("secret", $tandym_secret_key);
                 $this->curl->addHeader("Content-Type", "application/json");
-                $this->curl->get($url);
-                $response = $this->curl->getBody();
-                $response = json_decode($response);
-    
-                if ($tandym_payment_mode == "sandbox") {
-                    $response->testMode = true;
-                } else {
-                    $response->testMode = false;
-                }
-                $response->ecomplatform = "Tandym Magento Program Info";
-                $response = json_encode($response);
+                $this->curl->post($url, json_encode($requestToSend));
+                $this->tandymHelper->logTandymActions("Request sent to TANDYM Middleware");
+                $this->tandymHelper->logTandymActions($url);
+                $this->tandymHelper->logTandymActions($requestToSend);
+                $responsefromtdm = $this->curl->getBody();
                 $statusCode = $this->curl->getStatus();
-                
-                $this->tandymHelper->logTandymActions("Tamdym Merchant Info Response Status Code: $statusCode");
-                $this->tandymHelper->logTandymActions($response);
 
+                $this->tandymHelper->logTandymActions("Response from Tamdym Middleware with Response Status Code: $statusCode");
+                $this->tandymHelper->logTandymActions($responsefromtdm);
+                
                 if ($statusCode == "200") {
-                    $this->tandymHelper->logTandymActions("Updating TANDYM Middleware");
-                    $url = self::TANDYM_MIDDLEWARE_PROGRAM_ENDPOINT;
+                    $this->tandymHelper->logTandymActions("Registering with TANDYM Express Middleware");
+                    if ($tandym_payment_mode == "sandbox") {
+                        $url = self::TANDYM_STAGING_EXPRESS_PROGRAM_ENDPOINT;
+                    } else {
+                        $url = self::TANDYM_LIVE_EXPRESS_PROGRAM_ENDPOINT;
+                    }
                     $this->curl->addHeader("apikey", $tandym_public_key);
                     $this->curl->addHeader("secret", $tandym_secret_key);
                     $this->curl->addHeader("Content-Type", "application/json");
-                    $this->curl->post($url, $response);
-
-                    $responsefromtdm = $this->curl->getBody();
+                    $this->curl->post($url, json_encode($requestToSend));
+                    $this->tandymHelper->logTandymActions("Request sent to TANDYM Express Middleware");
+                    $this->tandymHelper->logTandymActions($url);
+                    $this->tandymHelper->logTandymActions($requestToSend);
+                    $responsefromtdmexpress = $this->curl->getBody();
                     $statusCode = $this->curl->getStatus();
 
-                    $this->tandymHelper->logTandymActions("Updated Tamdym Middleware Merchant Info Response Status Code: $statusCode");
-                    $this->tandymHelper->logTandymActions($responsefromtdm);
+                    $this->tandymHelper->logTandymActions("Response from Tamdym Express Middleware with Response Status Code: $statusCode");
+                    $this->tandymHelper->logTandymActions($responsefromtdmexpress);
                 }
+                
             }
         } catch (\Exception $e) {
             $this->tandymHelper->logTandymActions("Tamdym Config Response Exception");

@@ -46,6 +46,7 @@ class Tandym extends AbstractMethod
     const TANDYM_AUTH_EXPIRY = 'tandym_auth_expiry';
     const TANDYM_CAPTURE_EXPIRY = 'tandym_capture_expiry';
     const TANDYM_ORDER_TYPE = 'tandym_order_type';
+    const TANDYM_CHECKOUT_TYPE = 'tandym_checkout_type';
 
     const ADDITIONAL_INFORMATION_KEY_REFERENCE_ID_V1 = 'tandym_order_id';
 
@@ -462,12 +463,13 @@ class Tandym extends AbstractMethod
         $this->tandymHelper->logTandymActions("Order validated at Tandym");
         $amountInCents = Util::formatToCents($amount);
         $tandymOrderType = $payment->getAdditionalInformation(self::TANDYM_ORDER_TYPE);
+        $tandymCheckoutType = $payment->getAdditionalInformation(self::TANDYM_CHECKOUT_TYPE);
         $tmpRefId = $payment->getCreditMemo()->getInvoice()->getTransactionId();
         
         //$this->tandymHelper->logTandymActions("Order Refund Started for getCreditMemo()->getInvoice()->getTransactionId() at Tandym - txtRef - ".$tmpRefId);
         //$this->tandymHelper->logTandymActions("Order Refund Started for getCreditMemo()->getInvoice()->getTransactionId() at Tandym - txnUUID - ".$payment->getAdditionalInformation($tmpRefId));
         
-        if ($tandymOrderType == TandymIdentity::API_VERSION_V2) {
+        if ($tandymOrderType == TandymIdentity::API_VERSION_V2 && $tandymCheckoutType != 'EXPRESS') {
             if (!$txnUUID = $payment->getCreditMemo()->getInvoice()->getTransactionId()) {
                 throw new LocalizedException(__('Failed to refund the payment. Parent Transaction ID is missing.'));
             } elseif (!$tandymOrderUUID = $payment->getAdditionalInformation($txnUUID)) {
@@ -482,7 +484,21 @@ class Tandym extends AbstractMethod
                 $payment->getOrder()->getStoreId()
             );
         } else {
-           // do nothing
+           // refund for express checkout
+
+            if (!$txnUUID = $payment->getCreditMemo()->getInvoice()->getTransactionId()) {
+                throw new LocalizedException(__('Failed to refund the payment. Parent Transaction ID is missing.'));
+            } elseif (!$tandymOrderUUID = $payment->getAdditionalInformation($txnUUID)) {
+                throw new LocalizedException(__('Failed to refund the payment. Order UUID is missing.'));
+            }
+            $payment->setAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFUND_AMOUNT, $amountInCents);
+            $refundTxnUUID = $this->v2->expressrefund(
+                $txnUUID,
+                $tandymOrderUUID,
+                $amountInCents,
+                $payment->getOrder()->getBaseCurrencyCode(),
+                $payment->getOrder()->getStoreId()
+            );
         }
         if (!$refundTxnUUID) {
             $this->tandymHelper->logTandymActions("Refund failed at Tandym.");
@@ -605,6 +621,8 @@ class Tandym extends AbstractMethod
     {
         $tandymOrderUUID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORIGINAL_ORDER_UUID);
         $captureTxnUUID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID);
+        
+        $tandymCheckoutType = $payment->getAdditionalInformation(self::TANDYM_CHECKOUT_TYPE);
 
         $this->tandymHelper->logTandymActions("Inside Validate Order Method - Call to Action");
 
@@ -612,16 +630,26 @@ class Tandym extends AbstractMethod
         //     $this->tandymHelper->logTandymActions("Inside Tandym Receipt - ".$captureTxnUUID);
         //     return false;
         // }
+        $orderTandymValidated = false;
+        if ($tandymCheckoutType != 'EXPRESS') {
+            $orderTandymValidated = $this->v2->validatepayment(
+                $captureTxnUUID,
+                $tandymOrderUUID,
+                $amount,
+                $payment->getOrder()->getBaseCurrencyCode(),
+                $payment->getOrder()->getStoreId()
+            );
+        } else {
+            $orderTandymValidated = $this->v2->validateexpresspayment(
+                $captureTxnUUID,
+                $tandymOrderUUID,
+                $amount,
+                $payment->getOrder()->getBaseCurrencyCode(),
+                $payment->getOrder()->getStoreId()
+            );
+        }
 
-        $orderTandymValidated = $this->v2->validatepayment(
-            $captureTxnUUID,
-            $tandymOrderUUID,
-            $amount,
-            $payment->getOrder()->getBaseCurrencyCode(),
-            $payment->getOrder()->getStoreId()
-        );
-
-        $this->tandymHelper->logTandymActions("Inside Validate Order Method - Response - ".$orderTandymValidated);
+        $this->tandymHelper->logTandymActions("Inside Validate Order Method - Checkout Type - ". $tandymCheckoutType." - Response - ".$orderTandymValidated);
         return $orderTandymValidated;
     }
 

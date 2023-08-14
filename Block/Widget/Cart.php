@@ -101,6 +101,21 @@ class Cart extends \Magento\Checkout\Block\Cart
             return false;
         }
     }
+    /**
+     * Get Widget Script for Cart Page status
+     *
+     * @return string
+     */
+    public function isExpressWidgetEnabledForCartPage()
+    {
+        try {
+            return $this->tandymConfig->isExpressWidgetEnabledForCartPage()
+                && $this->tandymConfig->isEnabled()
+                && $this->getGrandTotal() != '';
+        } catch (NoSuchEntityException $e) {
+            return false;
+        }
+    }
 
     /**
      * @return string
@@ -140,7 +155,20 @@ class Cart extends \Magento\Checkout\Block\Cart
             return null;
         }
     }
-
+    
+    /**
+     * Get Merchant Program Name
+     *
+     * @return string|null
+     */
+    public function getprogramName()
+    {
+        try {
+            return $this->tandymConfig->getprogramName();
+        } catch (NoSuchEntityException $e) {
+            return null;
+        }
+    }   
     /**
      * Get Payment Mode
      *
@@ -155,4 +183,17 @@ class Cart extends \Magento\Checkout\Block\Cart
         }
     }
    
+    /**
+     * Get Express Button Image URL
+     *
+     * @return string|null
+     */
+    public function getExpressButtonImageURL()
+    {
+        try {
+            return $this->tandymConfig->getExpressButtonImageURL();
+        } catch (NoSuchEntityException $e) {
+            return null;
+        }
+    }
 }

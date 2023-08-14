@@ -116,7 +116,18 @@ interface TandymConfigInterface extends IdentityInterface
      * @return bool
      */
     public function isWidgetEnabledForCartPage($scope = ScopeInterface::SCOPE_STORE);
-
+    /**
+     * Get Express widget script status for cart page
+     * @param string $scope
+     * @return bool
+     */
+    public function isExpressWidgetEnabledForCartPage($scope = ScopeInterface::SCOPE_STORE);
+    /**
+     * Get Express Checkout Image Url
+     * @param string $scope
+     * @return bool
+     */
+    public function getExpressButtonImageURL($scope = ScopeInterface::SCOPE_STORE);
     /**
      * Get installment widget status for checkout page
      * @param string $scope
@@ -162,6 +173,7 @@ interface TandymConfigInterface extends IdentityInterface
      * @return string
      */
     public function getCartUrl();
+
     /**
      * Get tokenize payment complete url
      * @return string

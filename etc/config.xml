@@ -21,6 +21,8 @@
                 <title>Tandym</title>
                 <widget_pdp>0</widget_pdp>
                 <widget_cart>0</widget_cart>
+                <widget_express_checkout>0</widget_express_checkout>
+                <xpress_button_img></xpress_button_img>
 	        </tandympay>
         </payment>
         <csp>

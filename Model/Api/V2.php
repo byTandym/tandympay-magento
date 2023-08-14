@@ -44,10 +44,21 @@ class V2 implements V2Interface
 {
     const TANDYM_HOSTED_CHECKOUT_URL = "https://magento.api.platform.poweredbytandym.com/checkout";
     const TANDYM_REFUND_URL = "https://magento.api.platform.poweredbytandym.com/refund";
+    
     const TANDYM_VALIDATE_URL_STAGING = "https://api.staging.poweredbytandym.com/paymentsMetadata/validate";
     const TANDYM_VALIDATE_URL_PROD = "https://api.bytandym.com/paymentsMetadata/validate";
+
+    const TANDYM_CAPTURE_VALIDATE_URL = "https://magento.api.platform.poweredbytandym.com/order/capture-and-validate";
+    
+    const TANDYM_EXPRESS_VALIDATE_URL_STAGING = "https://stagingapi.platform.poweredbytandym.com/express/capture-and-validate";
+    const TANDYM_EXPRESS_VALIDATE_URL_PROD = "https://plugin.api.platform.poweredbytandym.com/express/capture-and-validate";
+    
     const TANDYM_LIVE_URL = "https://api.bytandym.com";
     const TANDYM_STAGING_URL = "https://api.staging.poweredbytandym.com";
+
+    const TANDYM_EXPRESS_REFUND_URL_PROD = "https://plugin.api.platform.poweredbytandym.com/express/refund";
+    const TANDYM_EXPRESS_REFUND_URL_STAGING = "https://stagingapi.platform.poweredbytandym.com/express/refund";
+
     /**
      * @var TandymConfigInterface
      */
@@ -252,7 +263,8 @@ class V2 implements V2Interface
             "orderid"  =>  $orderUUID,
             "transaction_receipt"=> $transId ,
             "amounttotal" => (int)$amount,
-            "currency" => $currency
+            "currency" => $currency,
+            "refundType" => "TANDYM_STANDARD_MAGE_REFUND"
         ];
         try {
             $response = $this->apiProcessor->call(
@@ -314,15 +326,91 @@ class V2 implements V2Interface
     /**
      * @inheritDoc
      */
+    public function expressrefund($transId, $orderUUID, $amount) {
+        $url = self::TANDYM_EXPRESS_REFUND_URL_STAGING;
+
+        $paymentMode = $this->tandymConfig->getPaymentMode();
+
+        if ($paymentMode == "live") {
+            $url = self::TANDYM_EXPRESS_REFUND_URL_PROD;
+        }
+        
+        $apiKey = $this->tandymConfig->getPublicKey();
+        $apiSecret = $this->tandymConfig->getPrivateKey();
+        $this->tandymHelper->logTandymActions("Refund initiated on failed order with key".$apiKey);
+
+        $payload = [
+            "type"  =>  "refund",
+            "orderid"  =>  $orderUUID,
+            "transaction_receipt"=> $transId ,
+            "amounttotal" => (int)$amount,
+            "currency" => "USD",
+            "refundType" => "TANDYM_EXPRESS_MAGE_REFUND"
+        ];
+        try {
+            $response = $this->apiProcessor->call(
+                $url,
+                $apiKey,
+                $apiSecret,
+                $payload,
+                ZendClient::POST
+            );
+            $body = $this->jsonHelper->jsonDecode($response);
+            return isset($body['referenceid']) && $body['referenceid'] ? $body['referenceid'] : "TDM-NA";
+        } catch (Exception $e) {
+            $this->tandymHelper->logTandymActions($e->getMessage());
+            throw new LocalizedException(
+                __('Tandym Gateway refund error on failed transaction: %1', $e->getMessage())
+            );
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function validatepayment($transId, $orderUUID, $amount, $currency, $storeId)
     {
-        $url = $this->tandymConfig->getPaymentMode() == "live" ? self::TANDYM_VALIDATE_URL_PROD : self::TANDYM_VALIDATE_URL_STAGING;
+        //$url = $this->tandymConfig->getPaymentMode() == "live" ? self::TANDYM_VALIDATE_URL_PROD : self::TANDYM_VALIDATE_URL_STAGING;
+        $url =  self::TANDYM_CAPTURE_VALIDATE_URL;
         $apiKey = $this->tandymConfig->getPublicKey();
         $apiSecret = $this->tandymConfig->getPrivateKey();
         $payload = [
             "paymentID"=> $transId ,
             "orderId"  =>  $orderUUID,
-            "amount" => $amount
+            "amount" => $amount,
+            "isTestMode" =>  $this->tandymConfig->getPaymentMode() == "live" ? false : true
+        ];
+        try {
+            $response = $this->apiProcessor->call(
+                $url,
+                $apiKey,
+                $apiSecret,
+                $payload,
+                ZendClient::POST
+            );
+            $body = $this->jsonHelper->jsonDecode($response);
+            return isset($body['valid']) && $body['valid'] ? $body['valid'] : false;
+        } catch (Exception $e) {
+            $this->tandymHelper->logTandymActions($e->getMessage());
+            throw new LocalizedException(
+                __('Tandym Gateway Validation Failed error: %1', $e->getMessage())
+            );
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function validateexpresspayment($transId, $orderUUID, $amount, $currency, $storeId)
+    {
+        $url = $this->tandymConfig->getPaymentMode() == "live" ? self::TANDYM_EXPRESS_VALIDATE_URL_PROD : self::TANDYM_EXPRESS_VALIDATE_URL_STAGING;
+        $apiKey = $this->tandymConfig->getPublicKey();
+        $apiSecret = $this->tandymConfig->getPrivateKey();
+        $payload = [
+            "paymentID"=> $transId ,
+            "orderId"  =>  $orderUUID,
+            "amount" => $amount,
+            "isTestMode" =>  $this->tandymConfig->getPaymentMode() == "live" ? false : true
         ];
         try {
             $response = $this->apiProcessor->call(

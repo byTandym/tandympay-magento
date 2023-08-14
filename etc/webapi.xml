@@ -27,4 +27,18 @@
             <resource ref="anonymous" />
         </resources>
     </route>
+    <!-- Get all Countries for store -->
+    <route url="/V1/tandym/getallcountry" method="GET">
+        <service class="Tandym\Tandympay\Api\Countryregion\CountryregionInterface" method="getAllCountry"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+    <!-- Get all Regions for specific country for store -->
+    <route url="/V1/tandym/getallregionbycid" method="GET">
+        <service class="Tandym\Tandympay\Api\Countryregion\CountryregionInterface" method="getAllRegion"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
 </routes>

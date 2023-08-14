@@ -9,7 +9,9 @@
 use Tandym\Tandympay\Block\Widget\Cart;
 /** @var $block Cart */
 ?>
-<?php if ($block->isWidgetEnabledForCartPage()) : ?>
+
+
+<?php if ($block->isWidgetEnabledForCartPage()  && !$block->isExpressWidgetEnabledForCartPage()) : ?>
 
 <?php 
 $cartPrice = $block->getGrandTotal() * 100;
@@ -17,10 +19,42 @@ $publicKey = $block->getPublicKey();
 $paymentMode = $block->getPaymentMode();
 ?>
 
-<div id="tandym-magento-pdp-mapps">
-<script src="https://assets.platform.bytandym.com/mapps-assets/magento/tandym-mapps-magento-v1.js?tandym_api_key=<?php echo $publicKey; ?>&mode=<?php echo $paymentMode; ?>" src_type="url"></script>
-<tandym-mapps data-tandym-widget='CART' data-tandym-cart-total='<?php echo $cartPrice ?>'></tandym-mapps>
+<div id="tandym-magento-cart-mapps">
+    <script src="https://assets.platform.bytandym.com/mapps-assets/magento/tandym-mapps-magento-v2.js?tandym_api_key=<?php echo $publicKey; ?>&mode=<?php echo $paymentMode; ?>" src_type="url"></script>
+    <tandym-mapps data-tandym-widget='CART' data-tandym-cart-total='<?php echo $cartPrice ?>'></tandym-mapps>
 </div>
 
+
+<?php endif; ?>
+
+<?php if ($block->isExpressWidgetEnabledForCartPage()) : ?>
+
+
+<?php 
+$cartPrice = $block->getGrandTotal() * 100;
+$publicKey = $block->getPublicKey();
+$programName = $block->getprogramName();
+$paymentMode = $block->getPaymentMode();
+$expressImageURL = $block->getExpressButtonImageURL();
+$expressButtonTitle = "Check out with ".$programName;
+?>
+
+<div id="tandym-express-checkout">
+<script src="https://assets.platform.bytandym.com/mapps-assets/magento/tandym-mapps-magento-v2.js?tandym_api_key=<?php echo $publicKey; ?>&mode=<?php echo $paymentMode; ?>" src_type="url"></script>
+    <tandym-mapps data-tandym-widget='EXPRESS' data-tandym-cart-total='<?php echo $cartPrice ?>'></tandym-mapps>    
+    
+    <?php if ($expressImageURL != null || $expressImageURL != "") {?>
+        <a id="tandym-express-btn" href="javascript:void(0)" onclick="return xpressCO()" class="action">
+            <img id="tandym-express-buttom-image" alt="<?= /* @noEscape */ __($programName) ?>" src="<?= /* @noEscape */ __($expressImageURL) ?>"/>
+        </a>
+    <?php } else { ?>
+        <a id="tandym-express-btn" href="javascript:void(0)" onclick="return xpressCO()" class="action primary checkout tandym-express-text-link">
+            <?= /* @noEscape */ __($expressButtonTitle) ?>
+        </a>  
+    <?php }?>
+    <div id="tandym-express-mapp-container">
+        <span id="xpress-savings-label" style="font-size:1.1rem;text-align:center">&nbsp;</span>
+    </div>
+</div>
 
 <?php endif; ?>

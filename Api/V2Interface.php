@@ -47,8 +47,18 @@ interface V2Interface
      * @param int $amount
      * @param string $reason
      */
-    public function refundonerror($transId, $orderUUID, $amount, $reason);
+    public function refundonerror($transId, $orderUUID, $amount,$reason);
 
+    /**
+     * Refund payment by Order uuid for express checkout
+     *
+     * @param string $url
+     * @param string $orderUUID
+     * @param int $amount
+    
+     */
+    public function expressrefund($transId, $orderUUID, $amount);
+    
     /**
      * Validate payment by Order uuid
      *
@@ -60,4 +70,16 @@ interface V2Interface
      * @return string|null
      */
     public function validatepayment($transId, $orderUUID, $amount, $currency, $storeId);
+
+    /**
+     * Validate payment by Order uuid for express checkout
+     *
+     * @param string $url
+     * @param string $orderUUID
+     * @param int $amount
+     * @param string $currency
+     * @param int $storeId
+     * @return string|null
+     */
+    public function validateexpresspayment($transId, $orderUUID, $amount, $currency, $storeId);
 }
