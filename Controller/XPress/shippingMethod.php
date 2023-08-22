@@ -128,7 +128,7 @@ class ShippingMethod extends Action implements HttpPostActionInterface
                     "method" => $shippingMethod->getMethodCode(),
                     "method_title" => $shippingMethod->getMethodTitle(),
                     "method_description" => "",
-                    "amount" => $shippingMethod->getAmount()
+                    "price" => $shippingMethod->getAmount()
                 ];
             }
 
@@ -136,7 +136,7 @@ class ShippingMethod extends Action implements HttpPostActionInterface
             $result->setHttpResponseCode(200);
             return $result->setData( [
                     "shippingRates" => $shippingRateOutput,
-                    "shippingRatesFallback" => $shipRateOutput
+                    "shipRateOutput" => $shipRateOutput
                 ]
             );
         } catch (Exception $e) {
