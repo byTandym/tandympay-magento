@@ -100,20 +100,16 @@ class ShippingMethod extends Action implements HttpPostActionInterface
                 ]
             ];
 
-            $tempQuote->getShippingAddress()->addData($customerShippingAddressRemote['shipping_address']);
-
-            //$tempQuote->save();
-
             $shippingAddress = $tempQuote->getShippingAddress();
-
-            //$shippingAddress->collectShippingRates();
-            // $shippingAddress->setCollectShippingRates(true)->collectShippingRates();
-            $shippingRates =  $shippingAddress->setCollectShippingRates(true)->collectShippingRates()->getGroupedAllShippingRates();
+            $shippingAddress->addData($customerShippingAddressRemote['shipping_address']);
+            $shippingAddress->setCollectShippingRates(true);
+            $shippingAddress->collectShippingRates();
+            $shippingAddress->collectShippingRates();
+            $shippingRates = $shippingAddress->getGroupedAllShippingRates();
 
             $shippingRateOutput  = [];
             foreach ($shippingRates as $carrierRates) {
                 foreach ($carrierRates as $rate) {
-                    //$shippingRateOutput[] = $this->shippingMethodConverter->modelToDataObject($rate, $tempQuote->getQuoteCurrencyCode());
                     $shippingRateOutput[] = $rate->getData();
                 }
             }
