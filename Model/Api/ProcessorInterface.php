@@ -8,7 +8,6 @@
 namespace Tandym\Tandympay\Model\Api;
 
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Http\ZendClient;
 
 /**
  * Interface ProcessorInterface
@@ -32,7 +31,7 @@ interface ProcessorInterface
         $authToken = null,
         $authSecret = null,
         $body = false,
-        $method = ZendClient::GET,
+        $method = 'GET',
         $getResponseStatusCode = false
     );
 }

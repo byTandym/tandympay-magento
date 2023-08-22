@@ -12,7 +12,6 @@ use Exception;
 use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\Api\DataObjectHelper;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\HTTP\ZendClient;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Magento\Store\Model\StoreManagerInterface;
@@ -220,7 +219,7 @@ class V2 implements V2Interface
                 $apiKey,
                 null,
                 $body,
-                ZendClient::POST
+                'POST'
             );
             $apiResult = $this->jsonHelper->jsonDecode($response);
             $originationURL = $apiResult['redirecturl'];
@@ -272,7 +271,7 @@ class V2 implements V2Interface
                 $apiKey,
                 $apiSecret,
                 $payload,
-                ZendClient::POST
+                'POST'
             );
             $body = $this->jsonHelper->jsonDecode($response);
             return isset($body['referenceid']) && $body['referenceid'] ? $body['referenceid'] : "";
@@ -311,7 +310,7 @@ class V2 implements V2Interface
                 $apiKey,
                 $apiSecret,
                 $payload,
-                ZendClient::POST
+                'POST'
             );
             $body = $this->jsonHelper->jsonDecode($response);
             return isset($body['referenceid']) && $body['referenceid'] ? $body['referenceid'] : "TDM-NA";
@@ -353,7 +352,7 @@ class V2 implements V2Interface
                 $apiKey,
                 $apiSecret,
                 $payload,
-                ZendClient::POST
+                'POST'
             );
             $body = $this->jsonHelper->jsonDecode($response);
             return isset($body['referenceid']) && $body['referenceid'] ? $body['referenceid'] : "TDM-NA";
@@ -386,7 +385,7 @@ class V2 implements V2Interface
                 $apiKey,
                 $apiSecret,
                 $payload,
-                ZendClient::POST
+                'POST'
             );
             $body = $this->jsonHelper->jsonDecode($response);
             return isset($body['valid']) && $body['valid'] ? $body['valid'] : false;
@@ -418,7 +417,7 @@ class V2 implements V2Interface
                 $apiKey,
                 $apiSecret,
                 $payload,
-                ZendClient::POST
+                'POST'
             );
             $body = $this->jsonHelper->jsonDecode($response);
             return isset($body['valid']) && $body['valid'] ? $body['valid'] : false;

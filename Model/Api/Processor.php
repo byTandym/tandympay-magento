@@ -10,7 +10,6 @@ namespace Tandym\Tandympay\Model\Api;
 use Magento\Framework\App\Config\ScopeConfigInterface as ScopeConfig;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\HTTP\Client\Curl;
-use Magento\Framework\HTTP\ZendClient;
 use Magento\Framework\Json\Helper\Data as JsonHelper;
 use Psr\Log\LoggerInterface as Logger;
 use Tandym\Tandympay\Helper\Data as TandymHelper;
@@ -78,7 +77,7 @@ class Processor implements ProcessorInterface
     /**
      * @inheritDoc
      */
-    public function call($url, $authToken = null, $authSecret = null, $body = false, $method = ZendClient::GET, $getResponseStatusCode = false)
+    public function call($url, $authToken = null, $authSecret = null, $body = false, $method = 'GET', $getResponseStatusCode = false)
     {
         try {
             if ($authToken) {
