@@ -122,10 +122,12 @@ class ShippingMethod extends Action implements HttpPostActionInterface
 
             foreach ($tmpShippingRatesOutput as $shippingMethod) {
                 $shipRateOutput[] = [
-                    "carrierTitle" => $shippingMethod->getCarrierTitle(),
-                    "carrierCode" => $shippingMethod->getCarrierCode(),
-                    "methodTitle" => $shippingMethod->getMethodTitle(),
-                    "methodCode" => $shippingMethod->getMethodCode(),
+                    "code" => $shippingMethod->getCarrierCode()."_".$shippingMethod->getMethodCode(),
+                    "carrier" => $shippingMethod->getCarrierCode(),
+                    "carrier_title" => $shippingMethod->getCarrierTitle(),
+                    "method" => $shippingMethod->getMethodCode(),
+                    "method_title" => $shippingMethod->getMethodTitle(),
+                    "method_description" => "",
                     "amount" => $shippingMethod->getAmount()
                 ];
             }
@@ -134,7 +136,7 @@ class ShippingMethod extends Action implements HttpPostActionInterface
             $result->setHttpResponseCode(200);
             return $result->setData( [
                     "shippingRates" => $shippingRateOutput,
-                    "shipRateOutput" => $shipRateOutput
+                    "shippingRatesFallback" => $shipRateOutput
                 ]
             );
         } catch (Exception $e) {
