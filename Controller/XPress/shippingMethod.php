@@ -133,7 +133,7 @@ class ShippingMethod extends Action implements HttpPostActionInterface
             $result = $this->resultJsonFactory->create();
             $result->setHttpResponseCode(200);
             return $result->setData( [
-                    $shippingRateOutput,
+                    "shippingRates" => $shippingRateOutput,
                     "shipRateOutput" => $shipRateOutput
                 ]
             );
