@@ -108,16 +108,34 @@ class ShippingMethod extends Action implements HttpPostActionInterface
             $shippingRates = $shippingAddress->getGroupedAllShippingRates();
 
             $shippingRateOutput  = [];
+
+            $tmpShippingRatesOutput = [];
+
             foreach ($shippingRates as $carrierRates) {
                 foreach ($carrierRates as $rate) {
                     $shippingRateOutput[] = $rate->getData();
+                    $tmpShippingRatesOutput[] = $this->shippingMethodConverter->modelToDataObject($rate, $tempQuote->getQuoteCurrencyCode());
                 }
             }
         
+            $shipRateOutput = [];
+
+            foreach ($tmpShippingRatesOutput as $shippingMethod) {
+                $shipRateOutput[] = [
+                    "carrierTitle" => $shippingMethod->getCarrierTitle(),
+                    "carrierCode" => $shippingMethod->getCarrierCode(),
+                    "methodTitle" => $shippingMethod->getMethodTitle(),
+                    "methodCode" => $shippingMethod->getMethodCode(),
+                    "amount" => $shippingMethod->getAmount()
+                ];
+            }
+
             $result = $this->resultJsonFactory->create();
             $result->setHttpResponseCode(200);
-            return $result->setData(
-                $shippingRateOutput
+            return $result->setData( [
+                    $shippingRateOutput,
+                    "shipRateOutput" => $shipRateOutput
+                ]
             );
         } catch (Exception $e) {
 
