@@ -30,6 +30,7 @@ use Magento\Quote\Model\QuoteFactory;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Api\ShippingMethodManagementInterface;
 use Magento\Quote\Model\Cart\ShippingMethodConverter;
+use Magento\Quote\Model\Quote\TotalsCollector;
 
 class ShippingMethod extends Action implements HttpPostActionInterface
 {
@@ -49,7 +50,8 @@ class ShippingMethod extends Action implements HttpPostActionInterface
         \Magento\Sales\Model\Service\OrderService $orderService ,
         CheckoutSession $checkoutSession,
         ShippingMethodManagementInterface $shippingMethodManagement,
-        ShippingMethodConverter $shippingMethodConverter
+        ShippingMethodConverter $shippingMethodConverter,
+        TotalsCollector $totalsCollector
     ) {
         $this->maskedQuoteIdToQuoteId = $maskedQuoteIdToQuoteId;
         $this->_storeManager = $storeManager;
@@ -65,6 +67,7 @@ class ShippingMethod extends Action implements HttpPostActionInterface
         $this->checkoutSession = $checkoutSession;
         $this->shippingMethodManagement = $shippingMethodManagement;
         $this->shippingMethodConverter = $shippingMethodConverter;
+        $this->totalsCollector = $totalsCollector;
         parent::__construct($context);
     }
    
@@ -103,7 +106,8 @@ class ShippingMethod extends Action implements HttpPostActionInterface
             $shippingAddress = $tempQuote->getShippingAddress();
             $shippingAddress->addData($customerShippingAddressRemote['shipping_address']);
             $shippingAddress->setCollectShippingRates(true);
-            $shippingAddress->collectShippingRates();
+            $this->totalsCollector->collectAddressTotals($tempQuote, $shippingAddress);
+            
             $shippingAddress->collectShippingRates();
             $shippingRates = $shippingAddress->getGroupedAllShippingRates();
 
