@@ -146,21 +146,25 @@ class placeOrder extends Action implements HttpPostActionInterface
 
             $order = $this->quoteManagement->submit($tempQuote);
             
+
+            
             //$order->setEmailSent();
-            $increment_id = $order->getRealOrderId();
+            //$increment_id = $order->getRealOrderId();
           
-            if($increment_id){
+            if($order){
+                $orderData = $order->getData();
                 $result = $this->resultJsonFactory->create();
                 $result->setHttpResponseCode(200);
                 return $result->setData([
                     'cartID' => $quoteId,
-                    'orderID' => $increment_id
+                    'orderID' => $quoteData["reserved_order_id"],
+                    'orderData' => $orderData
                 ]);
             } else {
                 $result = $this->resultJsonFactory->create();
                 $result->setHttpResponseCode(400);
                 return $result->setData([
-                    'error' => "Error Occured at Order Creation"
+                    'error' => "Error Occured at Order Creation - Order Failure"
                 ]);
             }
         }  catch (Exception $e) {
