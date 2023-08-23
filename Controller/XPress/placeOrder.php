@@ -40,7 +40,8 @@ class placeOrder extends Action implements HttpPostActionInterface
         \Magento\Customer\Model\CustomerFactory $customerFactory,
         \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository,
         JsonFactory $resultJsonFactory,
-        \Magento\Sales\Model\Service\OrderService $orderService  
+        \Magento\Sales\Model\Service\OrderService $orderService,
+        \Tandym\Tandympay\Helper\Data $tandymHelper
     ) {
         $this->maskedQuoteIdToQuoteId = $maskedQuoteIdToQuoteId;
         $this->_storeManager = $storeManager;
@@ -53,6 +54,7 @@ class placeOrder extends Action implements HttpPostActionInterface
         $this->customerRepository = $customerRepository;
         $this->resultJsonFactory = $resultJsonFactory;
         $this->orderService = $orderService;
+        $this->tandymHelper = $tandymHelper;
         parent::__construct($context);
     }
 
@@ -77,6 +79,8 @@ class placeOrder extends Action implements HttpPostActionInterface
             $tandym_receipt= $requestBody->transaction_receipt;
             
             $quoteId = $this->getRequest()->getParam('quoteId');
+
+            $this->tandymHelper->logTandymActions("TDM-XCO: Place Order Request from Tandym for QuoteId: ".$quoteId);
 
             $tempQuote = $this->quote->create()->load($quoteId);
             $quoteData = $tempQuote->getData();
@@ -146,7 +150,7 @@ class placeOrder extends Action implements HttpPostActionInterface
 
             $order = $this->quoteManagement->submit($tempQuote);
             
-
+            $this->tandymHelper->logTandymActions("TDM-XCO: Order Created from Tandym for QuoteId: ".$quoteId." - Order#: ".$quoteData["reserved_order_id"]);
             
             //$order->setEmailSent();
             //$increment_id = $order->getRealOrderId();
@@ -161,6 +165,7 @@ class placeOrder extends Action implements HttpPostActionInterface
                     'orderData' => $orderData
                 ]);
             } else {
+                $this->tandymHelper->logTandymActions("TDM-XCO: Order Creation Failed Error -> QuoteID: ".$quoteId);
                 $result = $this->resultJsonFactory->create();
                 $result->setHttpResponseCode(400);
                 return $result->setData([
@@ -168,6 +173,7 @@ class placeOrder extends Action implements HttpPostActionInterface
                 ]);
             }
         }  catch (Exception $e) {
+            $this->tandymHelper->logTandymActions("TDM-XCO: Cart Total Exception -> ".$e->getMessage());
 
             $result = $this->resultJsonFactory->create();
                 $result->setHttpResponseCode(400);

@@ -51,7 +51,8 @@ class getTotals extends Action implements HttpPostActionInterface
         \Magento\Sales\Model\Service\OrderService $orderService ,
         CheckoutSession $checkoutSession,
         ShippingMethodManagementInterface $shippingMethodManagement,
-        ShippingMethodConverter $shippingMethodConverter
+        ShippingMethodConverter $shippingMethodConverter,
+        \Tandym\Tandympay\Helper\Data $tandymHelper
     ) {
         $this->maskedQuoteIdToQuoteId = $maskedQuoteIdToQuoteId;
         $this->_storeManager = $storeManager;
@@ -67,6 +68,7 @@ class getTotals extends Action implements HttpPostActionInterface
         $this->checkoutSession = $checkoutSession;
         $this->shippingMethodManagement = $shippingMethodManagement;
         $this->shippingMethodConverter = $shippingMethodConverter;
+        $this->tandymHelper = $tandymHelper;
         parent::__construct($context);
     }
    
@@ -84,7 +86,8 @@ class getTotals extends Action implements HttpPostActionInterface
             $requestParams = $this->getRequest()->getParams();
             $quoteId = $this->getRequest()->getParam('quoteId');
 
-           
+           $this->tandymHelper->logTandymActions("TDM-XCO: Getting Cart Total for QuoteId: ".$quoteId);
+
             $requestshippingAddress = $requestBody->addressInformation->shipping_address;
             $requestbillingAddress = $requestBody->addressInformation->billing_address;
             $requestshippingMethodCode =  $requestBody->addressInformation->shipping_method_code;
@@ -148,6 +151,18 @@ class getTotals extends Action implements HttpPostActionInterface
             $shippingAmount = $shippingTotal["shipping_amount"];
             $discount_amount = $shippingTotal["discount_amount"];
 
+            $dataToSend = [
+                "grandTotal" =>  $grandTotal,
+                "subTotal" => $subtotal,
+                "taxAmount" => $tax_amount,
+                "shippingAmount" => $shippingAmount,
+                "discountAmount" => $discount_amount,
+                "mageShipping" => $shippingAddress->getData(),
+                'quoteData' => $tempQuote->getData()
+            ];
+
+            $this->tandymHelper->logTandymActions("TDM-XCO: Cart Total : ".json_encode($dataToSend));
+
             return $result->setData([
                 "grandTotal" =>  $grandTotal,
                 "subTotal" => $subtotal,
@@ -160,6 +175,8 @@ class getTotals extends Action implements HttpPostActionInterface
                 
             );
         } catch (Exception $e) {
+
+            $this->tandymHelper->logTandymActions("TDM-XCO: Cart Total Exception -> ".$e->getMessage());
 
             $result = $this->resultJsonFactory->create();
             $result->setHttpResponseCode(400);

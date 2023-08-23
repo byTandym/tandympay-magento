@@ -49,7 +49,8 @@ class reserveCart extends Action implements HttpPostActionInterface
         \Magento\Sales\Model\Service\OrderService $orderService ,
         CheckoutSession $checkoutSession,
         ShippingMethodManagementInterface $shippingMethodManagement,
-        ShippingMethodConverter $shippingMethodConverter
+        ShippingMethodConverter $shippingMethodConverter,
+        \Tandym\Tandympay\Helper\Data $tandymHelper
     ) {
         $this->maskedQuoteIdToQuoteId = $maskedQuoteIdToQuoteId;
         $this->_storeManager = $storeManager;
@@ -65,6 +66,7 @@ class reserveCart extends Action implements HttpPostActionInterface
         $this->checkoutSession = $checkoutSession;
         $this->shippingMethodManagement = $shippingMethodManagement;
         $this->shippingMethodConverter = $shippingMethodConverter;
+        $this->tandymHelper = $tandymHelper;
         parent::__construct($context);
     }
    
@@ -76,12 +78,17 @@ class reserveCart extends Action implements HttpPostActionInterface
     */
     public function execute() {
         
+        
         $maskedHashId = $this->getRequest()->getParam('cartId');
+        $this->tandymHelper->logTandymActions("TDM-XCO: Initial Request from Tandym Express Checkout");
+
         $quoteId = "";
         try {
             $quoteId = $this->maskedQuoteIdToQuoteId->execute($maskedHashId);
+            $this->tandymHelper->logTandymActions("TDM-XCO: Guest QuoteId:".$quoteId);
         } catch (NoSuchEntityException $e) {
             $quoteId = $maskedHashId;
+            $this->tandymHelper->logTandymActions("TDM-XCO: Customer QuoteId:".$quoteId);
         }
     
         try {
@@ -96,6 +103,7 @@ class reserveCart extends Action implements HttpPostActionInterface
 
                 $result = $this->resultJsonFactory->create();
                 $result->setHttpResponseCode(200);
+                $this->tandymHelper->logTandymActions("TDM-XCO: Reserved Order: ".$quoteData["reserved_order_id"]);
                 return $result->setData([
                     'quoteId' => strval($quoteId),
                     'reserveOrderId' => $quoteData["reserved_order_id"],
@@ -110,6 +118,7 @@ class reserveCart extends Action implements HttpPostActionInterface
             } else {
                 $result = $this->resultJsonFactory->create();
                 $result->setHttpResponseCode(400);
+                $this->tandymHelper->logTandymActions("TDM-XCO: Error -> QuoteID: ".$quoteId);
                 return $result->setData([
                     'status' => "error - not found",
                     'quoteId' => strval($quoteId)
@@ -117,7 +126,7 @@ class reserveCart extends Action implements HttpPostActionInterface
             }
            
         } catch (Exception $e) {
-
+            $this->tandymHelper->logTandymActions("TDM-XCO: ReserveCart - Exception -> ".$e->getMessage());
             $result = $this->resultJsonFactory->create();
             $result->setHttpResponseCode(400);
             return $result->setData([

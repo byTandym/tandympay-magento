@@ -51,6 +51,7 @@ class ShippingMethod extends Action implements HttpPostActionInterface
         CheckoutSession $checkoutSession,
         ShippingMethodManagementInterface $shippingMethodManagement,
         ShippingMethodConverter $shippingMethodConverter,
+        \Tandym\Tandympay\Helper\Data $tandymHelper,
         TotalsCollector $totalsCollector
     ) {
         $this->maskedQuoteIdToQuoteId = $maskedQuoteIdToQuoteId;
@@ -68,6 +69,7 @@ class ShippingMethod extends Action implements HttpPostActionInterface
         $this->shippingMethodManagement = $shippingMethodManagement;
         $this->shippingMethodConverter = $shippingMethodConverter;
         $this->totalsCollector = $totalsCollector;
+        $this->tandymHelper = $tandymHelper;
         parent::__construct($context);
     }
    
@@ -81,10 +83,13 @@ class ShippingMethod extends Action implements HttpPostActionInterface
 
         try {
 
+            
             $requestBody = json_decode($this->getRequest()->getContent());
             $requestParams = $this->getRequest()->getParams();
             $quoteId = $this->getRequest()->getParam('quoteId');
             $requestAddress = $requestBody->address;
+
+            $this->tandymHelper->logTandymActions("TDM-XCO: Getting Available Shipping Methods for QuoteId: ".$quoteId);
 
             $tempQuote = $this->quote->create()->load($quoteId);
 
@@ -136,6 +141,8 @@ class ShippingMethod extends Action implements HttpPostActionInterface
                 ];
             }
 
+            $this->tandymHelper->logTandymActions("TDM-XCO: ShippingMethod List ".json_encode($shipRateOutput));
+
             $result = $this->resultJsonFactory->create();
             $result->setHttpResponseCode(200);
             return $result->setData( [
@@ -144,7 +151,7 @@ class ShippingMethod extends Action implements HttpPostActionInterface
                 ]
             );
         } catch (Exception $e) {
-
+            $this->tandymHelper->logTandymActions("TDM-XCO: ShippingMethod Exception ".$e->getMessage());
             $result = $this->resultJsonFactory->create();
             $result->setHttpResponseCode(400);
             return $result->setData([
