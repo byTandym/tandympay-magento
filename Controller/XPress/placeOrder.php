@@ -131,8 +131,6 @@ class placeOrder extends Action implements HttpPostActionInterface
           // Set Sales Order Payment
             $tempQuote->getPayment()->importData(['method' => 'tandympay']);
     
-           
-
             $payment = $tempQuote->getPayment();
             $additionalInformation['tandym_order_type'] = 'v2';
             $additionalInformation['tandym_reference_id'] = $tandym_receipt;
@@ -151,7 +149,7 @@ class placeOrder extends Action implements HttpPostActionInterface
             //$order->setEmailSent();
             $increment_id = $order->getRealOrderId();
           
-            if($order->getEntityId()){
+            if($increment_id){
                 $result = $this->resultJsonFactory->create();
                 $result->setHttpResponseCode(200);
                 return $result->setData([
