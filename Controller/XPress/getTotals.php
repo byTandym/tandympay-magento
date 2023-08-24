@@ -156,9 +156,7 @@ class getTotals extends Action implements HttpPostActionInterface
                 "subTotal" => $subtotal,
                 "taxAmount" => $tax_amount,
                 "shippingAmount" => $shippingAmount,
-                "discountAmount" => $discount_amount,
-                "mageShipping" => $shippingAddress->getData(),
-                'quoteData' => $tempQuote->getData()
+                "discountAmount" => $discount_amount
             ];
 
             $this->tandymHelper->logTandymActions("TDM-XCO: Cart Total : ".json_encode($dataToSend));
