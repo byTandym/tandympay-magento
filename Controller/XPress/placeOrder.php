@@ -41,7 +41,8 @@ class placeOrder extends Action implements HttpPostActionInterface
         \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository,
         JsonFactory $resultJsonFactory,
         \Magento\Sales\Model\Service\OrderService $orderService,
-        \Tandym\Tandympay\Helper\Data $tandymHelper
+        \Tandym\Tandympay\Helper\Data $tandymHelper,
+        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender
     ) {
         $this->maskedQuoteIdToQuoteId = $maskedQuoteIdToQuoteId;
         $this->_storeManager = $storeManager;
@@ -55,6 +56,7 @@ class placeOrder extends Action implements HttpPostActionInterface
         $this->resultJsonFactory = $resultJsonFactory;
         $this->orderService = $orderService;
         $this->tandymHelper = $tandymHelper;
+        $this->orderSender = $orderSender;
         parent::__construct($context);
     }
 
@@ -152,10 +154,8 @@ class placeOrder extends Action implements HttpPostActionInterface
             
             $this->tandymHelper->logTandymActions("TDM-XCO: Order Created from Tandym for QuoteId: ".$quoteId." - Order#: ".$quoteData["reserved_order_id"]);
             
-            //$order->setEmailSent();
-            //$increment_id = $order->getRealOrderId();
-          
             if($order){
+                $this->orderSender->send($order);
                 $orderData = $order->getData();
                 $result = $this->resultJsonFactory->create();
                 $result->setHttpResponseCode(200);
