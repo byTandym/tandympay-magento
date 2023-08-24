@@ -124,28 +124,20 @@ class Countryregion implements CountryregionInterface
 
    {
 
-     $collection = $this->countryCollectionFactory->create()->loadByStore();
+    $collection = $this->countryCollectionFactory->create()->loadByStore();
+    $countryList =  $collection->getData();
+    $res = [];
+    $count = 0;
+    foreach($countryList as $country) {
+      $countryName = $this->countryFactory->create()->loadByCode($country['country_id']);
+      $res[] = [
+        'country_id' => $country['country_id'],
+        'country' => $countryName->getName()
+      ];
+      $count++;
+    }
 
-     $counties =  $collection->getData();
-
-     $res = array();
-
-     $count = 0;
-
-     foreach($counties as $country) {
-
-       $res[$count]['country_id'] = $country['country_id'];
-
-       $countryy = $this->countryFactory->create()->loadByCode($country['country_id']);
-
-       $res[$count]['country'] = $countryy->getName();
-
-       $count++;
-
-     }
-
-     return $res;
-
+    return $res;
   }
 
    /**

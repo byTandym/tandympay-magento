@@ -15,7 +15,7 @@ interface CountryregionInterface
 
   *
 
-  * @return array
+  * @return json
 
   */
 
