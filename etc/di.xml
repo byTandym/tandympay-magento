@@ -22,7 +22,6 @@
     <preference for="Tandym\Tandympay\Api\V2Interface" type="Tandym\Tandympay\Model\Api\V2"/>
     <preference for="Tandym\Tandympay\Api\OrderManagementInterface" type="Tandym\Tandympay\Model\OrderManagement"/>
     <preference for="Tandym\Tandympay\Api\GuestOrderManagementInterface" type="Tandym\Tandympay\Model\GuestOrderManagement"/>
-    <preference for="Tandym\Tandympay\Api\Countryregion\CountryregionInterface" type="Tandym\Tandympay\Model\Countryregion\Countryregion" />
     <type name="Tandym\Tandympay\Logger\Handler">
         <arguments>
             <argument name="filesystem" xsi:type="object">Magento\Framework\Filesystem\Driver\File</argument>
