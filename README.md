@@ -44,6 +44,7 @@ This document will help you in installing `Tandym's Magento 2` extension.
 * Set `Enable Tandym Widget in Product Page` to `Yes` for adding widget script in the Product Display Page which will help in enabling `Tandym MApps Widget` Modal in PDP.
 * Set `Enable Tandym Widget in Cart Page` to `Yes` for adding widget script in the Cart Page which will help in enabling `Tandym MApps Widget` Modal in Cart Page.
 * Set `Enable Express Checkout in Cart Page` to `Yes` for adding Express Checkout in the Cart Page which will help in enabling `Tandym Express Checkout` Modal in Cart Page.
+* Set `Enable Express Checkout in Mini Cart` to `Yes` for adding Express Checkout in the Mini Cart which will help in enabling `Tandym Express Checkout` Modal in Mini Cart.
 * Enabling Express Checkout will automatically disable Tandym Widget in Cart Page
 * Set the `Express Checkout Button Image URL` to the `Image URL provided by Tandym` for Express Checkout Button.
 * Save the configuration and clear the cache.
