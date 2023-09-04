@@ -43,6 +43,7 @@ class TandymIdentity extends Container implements TandymConfigInterface
     const XML_PATH_WIDGET_PDP = 'payment/tandympay/widget_pdp';
     const XML_PATH_WIDGET_CART = 'payment/tandympay/widget_cart';
     const XML_PATH_WIDGET_EXPRESS_CHECKOUT = 'payment/tandympay/widget_express_checkout';
+    const XML_PATH_WIDGET_EXPRESS_CHECKOUT_MINI_CART = 'payment/tandympay/widget_express_checkout_mini_cart';
     const XML_PATH_WIDGET_EXPRESS_CHECKOUT_IMAGE_URL = 'payment/tandympay/xpress_button_img';
 
 
@@ -213,6 +214,18 @@ class TandymIdentity extends Container implements TandymConfigInterface
     {
         return $this->getConfigValue(
             self::XML_PATH_WIDGET_EXPRESS_CHECKOUT,
+            $this->getStore()->getStoreId(),
+            $scope
+        );
+    }
+    
+    /**
+     * @inheritdoc
+     */
+    public function isExpressWidgetEnabledForMiniCart($scope = ScopeInterface::SCOPE_STORE)
+    {
+        return $this->getConfigValue(
+            self::XML_PATH_WIDGET_EXPRESS_CHECKOUT_MINI_CART,
             $this->getStore()->getStoreId(),
             $scope
         );

@@ -92,6 +92,13 @@
                         <comment>Makes you enable Tandym Widget in Cart Page</comment>
                         <config_path>payment/tandympay/widget_express_checkout</config_path>
                     </field>
+                    <!-- widget express checkout in minicart -->
+                    <field id="widget_express_checkout_mini_cart" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Enable Express Checkout in Mini Cart</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <comment>Makes you enable Tandym Widget in Mini Cart</comment>
+                        <config_path>payment/tandympay/widget_express_checkout_mini_cart</config_path>
+                    </field>
                     <!-- widget express checkout button image url -->
                     <field id="xpress_button_img" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Express Checkout Button Image URL</label>

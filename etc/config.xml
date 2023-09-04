@@ -22,6 +22,7 @@
                 <widget_pdp>0</widget_pdp>
                 <widget_cart>0</widget_cart>
                 <widget_express_checkout>0</widget_express_checkout>
+                <widget_express_checkout_mini_cart>0</widget_express_checkout_mini_cart>
                 <xpress_button_img></xpress_button_img>
 	        </tandympay>
         </payment>

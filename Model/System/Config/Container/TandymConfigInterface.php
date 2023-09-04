@@ -122,6 +122,12 @@ interface TandymConfigInterface extends IdentityInterface
      * @return bool
      */
     public function isExpressWidgetEnabledForCartPage($scope = ScopeInterface::SCOPE_STORE);
+     /**
+     * Get Express widget script status for mini cart
+     * @param string $scope
+     * @return bool
+     */
+    public function isExpressWidgetEnabledForMiniCart($scope = ScopeInterface::SCOPE_STORE);
     /**
      * Get Express Checkout Image Url
      * @param string $scope

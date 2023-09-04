@@ -1,0 +1,118 @@
+<?php
+/*
+ * @category    Tandym
+ * @package     Tandym_Tandympay
+ * @copyright   Copyright (c) Tandym (https://www.bytandym.com/)
+ */
+?>
+<?php
+use Tandym\Tandympay\Block\Widget\MiniCart;
+?>
+
+<?php if ($block->getTandymEnabled()) : ?>
+<?php 
+    $publicKey = $block->getPublicKey();
+    $programName = $block->getprogramName();
+    $paymentMode = $block->getPaymentMode();
+    $expressImageURL = $block->getExpressButtonImageURL();
+    $expressButtonTitle = "Check out with ".$programName;
+?>
+<script src="https://assets.platform.bytandym.com/mapps-assets/magento/tandym-mapps-magento-v2.1.js?tandym_api_key=<?php echo $publicKey; ?>&mode=<?php echo $paymentMode; ?>" src_type="url"></script>
+
+<?php endif; ?>
+
+
+<?php if ($block->isExpressWidgetEnabledForMiniCart()) : ?>
+
+
+<?php 
+$publicKey = $block->getPublicKey();
+$programName = $block->getprogramName();
+$paymentMode = $block->getPaymentMode();
+$expressImageURL = $block->getExpressButtonImageURL();
+$expressButtonTitle = "Check out with ".$programName;
+?>
+
+<div id="tandym-express-minicart-checkout">
+    <tandym-mapps-mobile data-tandym-widget='EXPRESS-MINICART' data-tandym-cart-total='100'></tandym-mapps-mobile>  
+</div>
+<script type="text/javascript">
+
+const observer = new MutationObserver(function(mutations, me) {
+    if (document.querySelector("#minicart-content-wrapper")) {
+        var checkoutBtn = document.getElementById("top-cart-btn-checkout");
+        if (checkoutBtn) {
+            //console.log('#top-cart-btn-checkout child has been added');
+            var checkoutBtnParentNode = checkoutBtn.parentNode;
+
+                var checkoutBtnStyle = checkoutBtn.className;
+
+                var divTandymMapps = document.createElement('div');
+                divTandymMapps.setAttribute('id','tandym-express-mapp-mini-container');
+                divTandymMapps.style.marginTop = "12px";
+                divTandymMapps.style.marginBottom = "12px";
+                divTandymMapps.style.display = "block";
+                divTandymMapps.style.width = "100%";
+                divTandymMapps.style.textAlign = "center";
+                
+
+                var anchor=document.createElement('a');
+                anchor.setAttribute('id','tandym-express-checkout-minicart-btn');
+                anchor.href='javascript:void(0)';
+                anchor.style.display = "block";
+                anchor.style.width = "100%";
+                anchor.style.textAlign = "center";
+                <?php if ($expressImageURL != null || $expressImageURL != "") {?>
+                    anchor.setAttribute('class', "action");
+                    
+                    var element = document.createElement("img");
+                    element.setAttribute("alt", "<?= /* @noEscape */ __($programName) ?>");
+                    element.setAttribute("src", "<?= /* @noEscape */ __($expressImageURL) ?>");
+                    anchor.appendChild(element);
+                <?php } else { ?>
+                    anchor.setAttribute('class', "action primary checkout");
+                    anchor.textContent =  "<?= /* @noEscape */ __($expressButtonTitle) ?>";
+                <?php }?>
+
+                divTandymMapps.appendChild(anchor);
+
+                var spanTandymMapps = document.createElement('span');
+                spanTandymMapps.setAttribute('id','xpress-mini-savings-label');
+                spanTandymMapps.style.fontSize = "1.1rem";
+                spanTandymMapps.style.textAlign = "center";
+
+                divTandymMapps.appendChild(spanTandymMapps);
+
+                checkoutBtnParentNode.insertBefore(divTandymMapps,checkoutBtnParentNode.firstChild);
+
+                
+
+                require(['jquery', 'jquery/ui'], function($){
+                    
+                    if (typeof window.checkoutConfig == 'undefined') {
+                        $.ajax({
+                            url: '<?= /* @noEscape */ $block->getUrl('tandym/cart/checkoutconfig'); ?>',
+                            success: function (result) {
+                                window.checkoutConfig = result;
+                                anchor.addEventListener("click", xpressCO_Mini);
+                                loadxPressMiniMAppMessage();
+                            },
+                            cache: false
+                        });
+                    } else {
+                        anchor.addEventListener("click", xpressCO_Mini);
+                        loadxPressMiniMAppMessage();
+                    }
+            });
+
+            observer.disconnect();
+        }
+    }
+    return true;
+});
+
+observer.observe(document, { subtree: true, childList: true });
+
+</script>
+
+<?php endif; ?>
