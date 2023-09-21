@@ -20,7 +20,7 @@ $paymentMode = $block->getPaymentMode();
 ?>
 
 <div id="tandym-magento-cart-mapps">
-    <script src="https://assets.platform.bytandym.com/mapps-assets/magento/tandym-mapps-magento-v2.js?tandym_api_key=<?php echo $publicKey; ?>&mode=<?php echo $paymentMode; ?>" src_type="url"></script>
+    <script src="https://assets.platform.bytandym.com/mapps-assets/magento/tandym-mapps-magento-v2.1.js?tandym_api_key=<?php echo $publicKey; ?>&mode=<?php echo $paymentMode; ?>" src_type="url"></script>
     <tandym-mapps data-tandym-widget='CART' data-tandym-cart-total='<?php echo $cartPrice ?>'></tandym-mapps>
 </div>
 
@@ -40,7 +40,7 @@ $expressButtonTitle = "Check out with ".$programName;
 ?>
 
 <div id="tandym-express-checkout">
-<script src="https://assets.platform.bytandym.com/mapps-assets/magento/tandym-mapps-magento-v2.js?tandym_api_key=<?php echo $publicKey; ?>&mode=<?php echo $paymentMode; ?>" src_type="url"></script>
+<script src="https://assets.platform.bytandym.com/mapps-assets/magento/tandym-mapps-magento-v2.1.js?tandym_api_key=<?php echo $publicKey; ?>&mode=<?php echo $paymentMode; ?>" src_type="url"></script>
     <tandym-mapps data-tandym-widget='EXPRESS' data-tandym-cart-total='<?php echo $cartPrice ?>'></tandym-mapps>    
     
     <?php if ($expressImageURL != null || $expressImageURL != "") {?>
