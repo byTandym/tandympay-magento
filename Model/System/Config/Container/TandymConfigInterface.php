@@ -95,6 +95,12 @@ interface TandymConfigInterface extends IdentityInterface
      * @return string|null
      */
     public function getPaymentAction($scope = ScopeInterface::SCOPE_STORE);
+    /**
+     * Get default order status for authorize only
+     * @param string $scope
+     * @return string|null
+     */
+    public function getOrderStatus($scope = ScopeInterface::SCOPE_STORE);
 
     /**
      * Get min checkout amount
@@ -122,7 +128,7 @@ interface TandymConfigInterface extends IdentityInterface
      * @return bool
      */
     public function isExpressWidgetEnabledForCartPage($scope = ScopeInterface::SCOPE_STORE);
-     /**
+    /**
      * Get Express widget script status for mini cart
      * @param string $scope
      * @return bool

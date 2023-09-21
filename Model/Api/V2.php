@@ -47,10 +47,17 @@ class V2 implements V2Interface
     const TANDYM_VALIDATE_URL_STAGING = "https://api.staging.poweredbytandym.com/paymentsMetadata/validate";
     const TANDYM_VALIDATE_URL_PROD = "https://api.bytandym.com/paymentsMetadata/validate";
 
-    const TANDYM_CAPTURE_VALIDATE_URL = "https://magento.api.platform.poweredbytandym.com/order/capture-and-validate";
+    const TANDYM_CAPTURE_VALIDATE_URL = "https://magento.api.platform.poweredbytandym.com/order/capture-and-validate";    
+    const TANDYM_EXPRESS_CAPTURE_VALIDATE_URL_STAGING = "https://stagingapi.platform.poweredbytandym.com/express/capture-and-validate";
+    const TANDYM_EXPRESS_CAPTURE_VALIDATE_URL_PROD = "https://plugin.api.platform.poweredbytandym.com/express/capture-and-validate";
     
-    const TANDYM_EXPRESS_VALIDATE_URL_STAGING = "https://stagingapi.platform.poweredbytandym.com/express/capture-and-validate";
-    const TANDYM_EXPRESS_VALIDATE_URL_PROD = "https://plugin.api.platform.poweredbytandym.com/express/capture-and-validate";
+    const TANDYM_AUTH_VALIDATE_URL = "https://magento.api.platform.poweredbytandym.com/order/validate";    
+    const TANDYM_EXPRESS_AUTH_VALIDATE_URL_STAGING = "https://stagingapi.platform.poweredbytandym.com/express/validate";
+    const TANDYM_EXPRESS_AUTH_VALIDATE_URL_PROD = "https://plugin.api.platform.poweredbytandym.com/express/validate";
+    
+    const TANDYM_VOID_URL = "https://magento.api.platform.poweredbytandym.com/order/void";    
+    const TANDYM_EXPRESS_VOID_URL_STAGING = "https://stagingapi.platform.poweredbytandym.com/express/void";
+    const TANDYM_EXPRESS_VOID_URL_PROD = "https://plugin.api.platform.poweredbytandym.com/express/void";
     
     const TANDYM_LIVE_URL = "https://api.bytandym.com";
     const TANDYM_STAGING_URL = "https://api.staging.poweredbytandym.com";
@@ -252,6 +259,49 @@ class V2 implements V2Interface
     /**
      * @inheritDoc
      */
+    public function release($transId, $orderUUID, $amount, $tandymCheckoutType, $currency, $storeId)
+    {
+        //$url = $this->tandymConfig->getPaymentMode() == "live" ? self::TANDYM_VALIDATE_URL_PROD : self::TANDYM_VALIDATE_URL_STAGING;
+        if ($tandymCheckoutType == "EXPRESS") {
+            $url = self::TANDYM_EXPRESS_VOID_STAGING;
+            $paymentMode = $this->tandymConfig->getPaymentMode();
+            if ($paymentMode == "live") {
+                $url = self::TANDYM_EXPRESS_VOID_PROD;
+            }
+        } else {
+            $url =  self::TANDYM_VOID_URL;
+        }
+        
+        $apiKey = $this->tandymConfig->getPublicKey();
+        $apiSecret = $this->tandymConfig->getPrivateKey();
+        $payload = [
+            "paymentID"=> $transId ,
+            "orderId"  =>  $orderUUID,
+            "amount" => $amount,
+            "isTestMode" =>  $this->tandymConfig->getPaymentMode() == "live" ? false : true
+        ];
+
+        try {
+            $response = $this->apiProcessor->call(
+                $url,
+                $apiKey,
+                $apiSecret,
+                $payload,
+                'POST'
+            );
+            $body = $this->jsonHelper->jsonDecode($response);
+            return isset($body['void']) && $body['void'] ? $body['void'] : false;
+        } catch (Exception $e) {
+            $this->tandymHelper->logTandymActions($e->getMessage());
+            throw new LocalizedException(
+                __('Tandym Gateway Validation Failed error: %1', $e->getMessage())
+            );
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function refund($transId, $orderUUID, $amount, $currency, $storeId)
     {
         $url = self::TANDYM_REFUND_URL;
@@ -367,10 +417,15 @@ class V2 implements V2Interface
     /**
      * @inheritDoc
      */
-    public function validatepayment($transId, $orderUUID, $amount, $currency, $storeId)
+    public function validatepayment($transId, $orderUUID, $amount, $currency, $storeId, $transType = "AUTHORIZE_CAPTURE")
     {
         //$url = $this->tandymConfig->getPaymentMode() == "live" ? self::TANDYM_VALIDATE_URL_PROD : self::TANDYM_VALIDATE_URL_STAGING;
-        $url =  self::TANDYM_CAPTURE_VALIDATE_URL;
+        if ($transType == "AUTHORIZE_CAPTURE") {
+            $url =  self::TANDYM_CAPTURE_VALIDATE_URL;
+        } else {
+            $url =  self::TANDYM_AUTH_VALIDATE_URL;
+        }
+        
         $apiKey = $this->tandymConfig->getPublicKey();
         $apiSecret = $this->tandymConfig->getPrivateKey();
         $payload = [
@@ -379,6 +434,7 @@ class V2 implements V2Interface
             "amount" => $amount,
             "isTestMode" =>  $this->tandymConfig->getPaymentMode() == "live" ? false : true
         ];
+
         try {
             $response = $this->apiProcessor->call(
                 $url,
@@ -400,9 +456,14 @@ class V2 implements V2Interface
     /**
      * @inheritDoc
      */
-    public function validateexpresspayment($transId, $orderUUID, $amount, $currency, $storeId)
+    public function validateexpresspayment($transId, $orderUUID, $amount, $currency, $storeId, $transType = "AUTHORIZE_CAPTURE")
     {
-        $url = $this->tandymConfig->getPaymentMode() == "live" ? self::TANDYM_EXPRESS_VALIDATE_URL_PROD : self::TANDYM_EXPRESS_VALIDATE_URL_STAGING;
+        if ($transType == "AUTHORIZE_CAPTURE") {
+            $url = $this->tandymConfig->getPaymentMode() == "live" ? self::TANDYM_EXPRESS_CAPTURE_VALIDATE_URL_PROD : self::TANDYM_EXPRESS_CAPTURE_VALIDATE_URL_STAGING;
+        } else {
+            $url = $this->tandymConfig->getPaymentMode() == "live" ? self::TANDYM_EXPRESS_AUTH_VALIDATE_URL_PROD : self::TANDYM_EXPRESS_AUTH_VALIDATE_URL_STAGING;
+        }
+        
         $apiKey = $this->tandymConfig->getPublicKey();
         $apiSecret = $this->tandymConfig->getPrivateKey();
         $payload = [

@@ -40,6 +40,8 @@ use Magento\Quote\Model\ResourceModel\Quote as QuoteResourceModel;
 class Tandym extends AbstractMethod
 {
     const PAYMENT_CODE = 'tandympay';
+    const STATE_NEW = "new";
+    const STATE_PROCESSING = "processing";
     const ADDITIONAL_INFORMATION_KEY_REFERENCE_ID = 'tandym_reference_id';
     const ADDITIONAL_INFORMATION_KEY_ORIGINAL_ORDER_UUID = 'tandym_original_order_uuid';
     const ADDITIONAL_INFORMATION_KEY_EXTENDED_ORDER_UUID = 'tandym_extended_order_uuid';
@@ -282,9 +284,20 @@ class Tandym extends AbstractMethod
                 $order->setCanSendNewEmailFlag(false);
                 $payment->authorize(true, $order->getBaseTotalDue()); // base amount will be set inside
                 $payment->setAmountAuthorized($order->getTotalDue());
-                $orderStatus = $order->getConfig()->getStateDefaultStatus(Order::STATE_NEW);
-                $order->setCustomerNote("Payment authorized by Tandym.");
-                $stateObject->setState(Order::STATE_NEW);
+
+                $defaultOrderStatus = $this->tandymConfig->getOrderStatus();
+
+                if ($defaultOrderStatus == self::STATE_NEW) {
+                    $orderStatus = $order->getConfig()->getStateDefaultStatus(Order::STATE_NEW);
+                    $order->setCustomerNote("Payment authorized by Tandym.");
+                    $stateObject->setState(Order::STATE_NEW);
+                } else {
+                    $orderStatus = $order->getConfig()->getStateDefaultStatus(Order::STATE_PROCESSING);
+                    $order->setCustomerNote("Payment authorized by Tandym.");
+                    $stateObject->setState(Order::STATE_PROCESSING);
+                    
+                }
+                //$stateObject->setState(Order::STATE_PROCESSING);
                 $stateObject->setStatus($orderStatus);
                 $stateObject->setIsNotified(true);
                 break;
@@ -331,8 +344,8 @@ class Tandym extends AbstractMethod
         $this->trackCartItemInformation($payment);
 
         $this->tandymHelper->logTandymActions("Tandym Reference ID : $reference");
-       
-        if (!$this->validateOrder($payment)) {
+        
+        if (!$this->validateTandymOrder($payment, $amount, "AUTHORIZE")) {
             throw new LocalizedException(__('Unable to validate the order.'));
         }
         $this->tandymHelper->logTandymActions("Order validated at Tandym");
@@ -341,8 +354,10 @@ class Tandym extends AbstractMethod
         $authorizedAmount += $amount;
         $payment->setAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_AUTH_AMOUNT, $authorizedAmount);
         $payment->setAdditionalInformation('payment_type', $this->getConfigPaymentAction());
-        $payment->setTransactionId($tandymOrderUUID)->setIsTransactionClosed(false);
-        $this->tandymHelper->logTandymActions("Transaction ID : $tandymOrderUUID");
+        //$payment->setTransactionId($tandymOrderUUID)->setIsTransactionClosed(false);
+        //$this->tandymHelper->logTandymActions("Transaction ID : $tandymOrderUUID");
+        $payment->setTransactionId($reference)->setIsTransactionClosed(false);
+        $this->tandymHelper->logTandymActions("Transaction ID : $reference");
         $this->tandymHelper->logTandymActions("Authorization successful");
         $this->tandymHelper->logTandymActions("Authorization end");
         return $this;
@@ -375,7 +390,7 @@ class Tandym extends AbstractMethod
         // if (!$this->validateOrder($payment, $this->canInvoice($payment->getOrder()))) {
         //     throw new LocalizedException(__('Unable to validate the order.'));
         // }
-        if (!$this->validateTandymOrder($payment, $amount)){
+        if (!$this->validateTandymOrder($payment, $amount, "AUTHORIZE_CAPTURE")){
             throw new LocalizedException(__('Unable to validate the order with Tandym.'));
         }
 
@@ -406,7 +421,7 @@ class Tandym extends AbstractMethod
      * @return $this|Tandym
      * @throws LocalizedException
      */
-    public function _void(InfoInterface $payment)
+    public function void(InfoInterface $payment)
     {
         $this->tandymHelper->logTandymActions("****Release Started****");
         if (!$this->canVoid()) {
@@ -418,12 +433,15 @@ class Tandym extends AbstractMethod
         }
         $this->tandymHelper->logTandymActions("Order validated at Tandym");
         $amountInCents = Util::formatToCents($payment->getOrder()->getBaseGrandTotal());
+        $tandymCheckoutType = $payment->getAdditionalInformation(self::TANDYM_CHECKOUT_TYPE);
+        $reference = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID);
 
         $url = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_RELEASE_LINK);
         if (!$isReleased = $this->v2->release(
-            $url,
+            $reference,
             $orderUUID,
             $amountInCents,
+            $tandymCheckoutType,
             $payment->getOrder()->getBaseCurrencyCode(),
             $payment->getOrder()->getStoreId()
         )) {
@@ -617,27 +635,29 @@ class Tandym extends AbstractMethod
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    private function validateTandymOrder($payment, $amount)
+    private function validateTandymOrder($payment, $amount, $transType = "AUTHORIZE_CAPTURE")
     {
         $tandymOrderUUID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORIGINAL_ORDER_UUID);
         $captureTxnUUID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID);
         
         $tandymCheckoutType = $payment->getAdditionalInformation(self::TANDYM_CHECKOUT_TYPE);
 
-        $this->tandymHelper->logTandymActions("Inside Validate Order Method - Call to Action");
+        $this->tandymHelper->logTandymActions("Inside Validate Order Method - Call to Action - ".$transType);
 
         // if (!is_string($captureTxnUUID) || (preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/', $captureTxnUUID) !== 1)) {
         //     $this->tandymHelper->logTandymActions("Inside Tandym Receipt - ".$captureTxnUUID);
         //     return false;
         // }
         $orderTandymValidated = false;
+    
         if ($tandymCheckoutType != 'EXPRESS') {
             $orderTandymValidated = $this->v2->validatepayment(
                 $captureTxnUUID,
                 $tandymOrderUUID,
                 $amount,
                 $payment->getOrder()->getBaseCurrencyCode(),
-                $payment->getOrder()->getStoreId()
+                $payment->getOrder()->getStoreId(), 
+                $transType
             );
         } else {
             $orderTandymValidated = $this->v2->validateexpresspayment(
@@ -645,9 +665,12 @@ class Tandym extends AbstractMethod
                 $tandymOrderUUID,
                 $amount,
                 $payment->getOrder()->getBaseCurrencyCode(),
-                $payment->getOrder()->getStoreId()
+                $payment->getOrder()->getStoreId(), 
+                $transType
             );
         }
+    
+        
 
         $this->tandymHelper->logTandymActions("Inside Validate Order Method - Checkout Type - ". $tandymCheckoutType." - Response - ".$orderTandymValidated);
         return $orderTandymValidated;

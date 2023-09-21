@@ -31,6 +31,8 @@ This document will help you in installing `Tandym's Magento 2` extension.
 * Navigate to `Stores > Configuration > Sales > Payment Methods > Tandym > Tandym Payment Settings` in your `Magento` admin.
 * Set `Enabled` as `Yes` to activate Tandym as a payment option.
 * Set the Payment Mode to `Live` for LIVE and set it as `Sandbox` for SANDBOX.
+* Set the Payment Action to `Authorize and Capture (Default)` or `Authorize Only`.
+* Set the NEW Order Status in case of `Authorize Only` to either `Processing (Default)` or `Pending` 
 * Set the `Program Name`, `Description`, `Domain`, `Program Logo URL`, `API Key` and `Secret`.
 * Set `Payment from Applicable Countries` to `Specific Countries`.
 * Set `Payment from Specific Countries` to `United States` Tandym is currently available for US only.

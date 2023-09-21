@@ -14,7 +14,7 @@ use Tandym\Tandympay\Model\Tandym;
 /**
  * Tandym Payment Action Dropdown source
  */
-class PaymentAction implements ArrayInterface
+class OrderStatus implements ArrayInterface
 {
     /**
      * @inheritdoc
@@ -23,12 +23,12 @@ class PaymentAction implements ArrayInterface
     {
         return [
             [
-                'value' => Tandym::ACTION_AUTHORIZE,
-                'label' => __('Authorize Only'),
+                'value' => Tandym::STATE_NEW,
+                'label' => __('Pending'),
             ],
             [
-                'value' => Tandym::ACTION_AUTHORIZE_CAPTURE,
-                'label' => __('Authorize and Capture')
+                'value' => Tandym::STATE_PROCESSING,
+                'label' => __('Processing')
             ]
         ];
     }

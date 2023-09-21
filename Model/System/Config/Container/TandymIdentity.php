@@ -39,6 +39,7 @@ class TandymIdentity extends Container implements TandymConfigInterface
     const XML_PATH_GATEWAY_REGION = 'payment/tandympay/gateway_region';
     
     const XML_PATH_PAYMENT_ACTION = 'payment/tandympay/payment_action';
+    const XML_PATH_ORDER_STATUS = 'payment/tandympay/order_status';
     
     const XML_PATH_WIDGET_PDP = 'payment/tandympay/widget_pdp';
     const XML_PATH_WIDGET_CART = 'payment/tandympay/widget_cart';
@@ -182,6 +183,18 @@ class TandymIdentity extends Container implements TandymConfigInterface
         );
     }
 
+    /**
+     * @inheritdoc
+     */
+    public function getOrderStatus($scope = ScopeInterface::SCOPE_STORE)
+    {
+        return $this->getConfigValue(
+            self::XML_PATH_ORDER_STATUS,
+            $this->getStore()->getStoreId(),
+            $scope
+        );
+    }
+
    
     /**
      * @inheritdoc
@@ -218,7 +231,7 @@ class TandymIdentity extends Container implements TandymConfigInterface
             $scope
         );
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -231,6 +244,7 @@ class TandymIdentity extends Container implements TandymConfigInterface
         );
     }
 
+    
     /**
      * @inheritdoc
      */

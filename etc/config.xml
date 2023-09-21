@@ -17,6 +17,7 @@
                 <payment_mode>sandbox</payment_mode>
                 <log_tracker>1</log_tracker>
                 <payment_action>authorize_capture</payment_action>
+                <order_status>processing</order_status>
                 <sort_order>0</sort_order>
                 <title>Tandym</title>
                 <widget_pdp>0</widget_pdp>

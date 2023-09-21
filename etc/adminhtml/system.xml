@@ -62,6 +62,12 @@
                         <source_model>Tandym\Tandympay\Model\System\Config\Source\Payment\PaymentAction</source_model>
                         <config_path>payment/tandympay/payment_action</config_path>
                     </field>
+                    <!-- order status -->
+                    <field id="order_status" translate="label" type="select" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>New Order Status for AUTHORIZE ONLY</label>
+                        <source_model>Tandym\Tandympay\Model\System\Config\Source\Payment\OrderStatus</source_model>
+                        <config_path>payment/tandympay/order_status</config_path>
+                    </field>
                     <!--sort order-->
                     <field id="sort_order" translate="label" type="text" sortOrder="140" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Sort Order</label>

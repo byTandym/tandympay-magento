@@ -41,6 +41,7 @@ class Complete extends Tandymv2
                 $additionalInformation['tandym_order_type'] = 'v2';
                 $additionalInformation['tandym_reference_id'] = $referenceID;
                 $additionalInformation['tandym_original_order_uuid'] = $tandymOrderID;
+                $additionalInformation['tandym_checkout_type'] = "STANDARD";
                 $additionalInformation['tandym_status'] = "APPROVED";
 
                 
