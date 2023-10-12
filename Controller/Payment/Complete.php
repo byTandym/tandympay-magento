@@ -7,7 +7,6 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Quote\Model\QuoteIdMask;
 use Tandym\Tandympay\Controller\AbstractController\Tandymv2;    
 
-
 /**
  * Class Complete
  * @package Tandym\Tandympay\Controller\Payment
@@ -15,6 +14,7 @@ use Tandym\Tandympay\Controller\AbstractController\Tandymv2;
 
 class Complete extends Tandymv2
 {
+    const TANDYM_MIDDLEWARE_REWARDS_ENDPOINT = "https://magento.api.platform.poweredbytandym.com/order/rewards";
 
     public function execute()
     {
@@ -34,10 +34,41 @@ class Complete extends Tandymv2
                 if ($cartManager === self::GUEST_CART_MANAGER) {
                     $quoteId = $this->quoteIdToMaskedQuoteIdInterface->execute($quoteId);
                 }
+                
+                //Collect the Rewards Applied for this order
+                $requestToSend = [];
+                
+                $requestToSend = [
+                    'order_id' => $tandymOrderID,
+                    'transaction_receipt' => $referenceID
+                ];
+                
+                $url = self::TANDYM_MIDDLEWARE_REWARDS_ENDPOINT;
+                $this->curl->addHeader("Content-Type", "application/json");
+                $this->curl->post($url, json_encode($requestToSend));
+                $this->tandymHelper->logTandymActions("Request sent to TANDYM Middleware for Rewards Applied");
+                $this->tandymHelper->logTandymActions($url);
+                $this->tandymHelper->logTandymActions($requestToSend);
+                $responsefromtdm = $this->curl->getBody();
+                $statusCode = $this->curl->getStatus();
 
-                
+                $this->tandymHelper->logTandymActions("Response from Tamdym Middleware with Response Status Code: $statusCode");
+                $this->tandymHelper->logTandymActions($responsefromtdm);
+                $_SESSION["tandym_rewards"] = 0;
+                $tandymRewardsApplied = 0;
+
+                if ($statusCode == "200") {
+                    $body = $this->jsonHelper->jsonDecode($responsefromtdm);
+                    
+                    $tandymRewardsApplied =  isset($body['rewardsApplied']) && $body['rewardsApplied'] ? $body['rewardsApplied'] : 0;
+
+                    $_SESSION["tandym_rewards"] = -1 * $tandymRewardsApplied;
+                }
+
+                //End of Rewards Applied Data Collection
+
                 $payment = $quote->getPayment();
-                
+                $additionalInformation['tandym_rewards_applied'] = $_SESSION["tandym_rewards"];
                 $additionalInformation['tandym_order_type'] = 'v2';
                 $additionalInformation['tandym_reference_id'] = $referenceID;
                 $additionalInformation['tandym_original_order_uuid'] = $tandymOrderID;
@@ -47,15 +78,17 @@ class Complete extends Tandymv2
                 
                 $payment->setAdditionalInformation($additionalInformation);
                 
-
                 $quote->setPayment($payment);
                 $this->tandymHelper->logTandymActions("Initiated Order Creation from Tandym.");
+                
                 $orderId = $this->$cartManager->placeOrder($quoteId);
                 if (!$orderId) {
                     throw new CouldNotSaveException(__("Unable to place the order."));
+                    $_SESSION["tandym_rewards"] = 0;
                 }
-                
+               
                 $this->tandymHelper->logTandymActions("Order Creation Success from Tandym.");
+                
                 $redirect = 'checkout/onepage/success';
             } else {
                 $this->tandymHelper->logTandymActions("Order Creation Failed to Session Timeout");
@@ -108,7 +141,7 @@ class Complete extends Tandymv2
 
     private function handleOrderFailure($tandymOrderUUID, $tandymReceipt, $amount, $reason)
     {
-
+        $_SESSION["tandym_rewards"] = 0;
         $refundTxnUUID = "";
         $refundTxnUUID = $this->v2->refundonerror(
             $tandymReceipt,

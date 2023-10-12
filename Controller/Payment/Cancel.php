@@ -17,6 +17,8 @@ class Cancel extends Tandym
      */
     public function execute()
     {
+        $_SESSION["tandym_rewards"] = 0;
+        
         $order = $this->getOrder();
         $order->registerCancellation("Returned from Tandym Checkout without completing payment.");
         $this->tandymHelper->logTandymActions(

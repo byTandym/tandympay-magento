@@ -23,7 +23,7 @@ use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Email\Sender\OrderSender;
 use Magento\Sales\Model\OrderFactory;
 use Tandym\Tandympay\Api\V2Interface;
-
+use Magento\Framework\HTTP\Client\Curl;
 /**
  * Class Tandym
  * @package Tandym\Tandympay\Controller\AbstractController
@@ -98,6 +98,11 @@ abstract class Tandymv2 extends Action
     /**
      * @var V2Interface
      */
+    protected $curl;
+    /**
+     * @var Curl
+     */
+    
     protected $v2;
     /**
      * Payment constructor.
@@ -118,6 +123,7 @@ abstract class Tandymv2 extends Action
      * @param QuoteIdToMaskedQuoteIdInterface $quoteIdToMaskedQuoteIdInterface
      * @param \Tandym\Tandympay\Model\System\Config\Container\TandymConfigInterface $tandymConfig
      * @param V2Interface $v2
+     * @param Curl $curl
      */
     public function __construct(
         Context $context,
@@ -136,7 +142,8 @@ abstract class Tandymv2 extends Action
         GuestCartManagementInterface $guestCartManagement,
         QuoteIdToMaskedQuoteIdInterface $quoteIdToMaskedQuoteIdInterface,
         \Tandym\Tandympay\Model\System\Config\Container\TandymConfigInterface $tandymConfig,
-        V2Interface $v2
+        V2Interface $v2,
+        Curl $curl
     ) {
         $this->customerSession = $customerSession;
         $this->tandymHelper = $tandymHelper;
@@ -154,6 +161,7 @@ abstract class Tandymv2 extends Action
         $this->quoteIdToMaskedQuoteIdInterface = $quoteIdToMaskedQuoteIdInterface;
         $this->tandymConfig = $tandymConfig;
         $this->v2 = $v2;
+        $this->curl = $curl;
         parent::__construct($context);
     }
 

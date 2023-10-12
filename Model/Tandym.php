@@ -48,6 +48,7 @@ class Tandym extends AbstractMethod
     const TANDYM_AUTH_EXPIRY = 'tandym_auth_expiry';
     const TANDYM_CAPTURE_EXPIRY = 'tandym_capture_expiry';
     const TANDYM_ORDER_TYPE = 'tandym_order_type';
+    const TANDYM_REWARDS_APPLIED = 'tandym_rewards_applied';
     const TANDYM_CHECKOUT_TYPE = 'tandym_checkout_type';
 
     const ADDITIONAL_INFORMATION_KEY_REFERENCE_ID_V1 = 'tandym_order_id';
@@ -331,7 +332,7 @@ class Tandym extends AbstractMethod
     {
         if (!$this->canAuthorize()) {
             throw new LocalizedException(__('The authorize action is not available.'));
-        } elseif ($amount <= 0) {
+        } elseif ($amount < 0) {
             throw new LocalizedException(__('Invalid amount for authorize.'));
         }
         $this->tandymHelper->logTandymActions("****Authorization start****");
@@ -348,6 +349,7 @@ class Tandym extends AbstractMethod
         if (!$this->validateTandymOrder($payment, $amount, "AUTHORIZE")) {
             throw new LocalizedException(__('Unable to validate the order.'));
         }
+        $_SESSION["tandym_rewards"] = 0;
         $this->tandymHelper->logTandymActions("Order validated at Tandym");
         $this->tandymHelper->logTandymActions("Order UUID : $tandymOrderUUID");
         $authorizedAmount = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_AUTH_AMOUNT);
@@ -376,7 +378,7 @@ class Tandym extends AbstractMethod
         $this->tandymHelper->logTandymActions("****Capture at Magento start****");
         if (!$this->canCapture()) {
             throw new LocalizedException(__('The capture action is not available.'));
-        } elseif ($amount <= 0) {
+        } elseif ($amount < 0) {
             throw new LocalizedException(__('Invalid amount for capture.'));
         }
         $this->tandymHelper->logTandymActions("Incoming amount from Magento : $amount");
@@ -393,7 +395,7 @@ class Tandym extends AbstractMethod
         if (!$this->validateTandymOrder($payment, $amount, "AUTHORIZE_CAPTURE")){
             throw new LocalizedException(__('Unable to validate the order with Tandym.'));
         }
-
+        $_SESSION["tandym_rewards"] = 0;
         $this->tandymHelper->logTandymActions("Order validated at Tandym");
         $this->tandymHelper->logTandymActions("Order UUID : $tandymOrderUUID");
         $tandymOrderType = $payment->getAdditionalInformation(self::TANDYM_ORDER_TYPE);
@@ -470,10 +472,13 @@ class Tandym extends AbstractMethod
      */
     public function refund(InfoInterface $payment, $amount)
     {
+        $tandym_rewards = $payment->getAdditionalInformation(self::TANDYM_REWARDS_APPLIED);
+        $amount += ($tandym_rewards*-1);
+        
         $this->tandymHelper->logTandymActions("****Refund Started****");
         if (!$this->canRefund()) {
             throw new LocalizedException(__('The refund action is not available.'));
-        } elseif ($amount <= 0) {
+        } elseif ($amount < 0) {
             throw new LocalizedException(__('Invalid amount for refund.'));
         } elseif (!$this->validateOrder($payment)) {
             throw new LocalizedException(__('Unable to validate the order.'));
@@ -639,7 +644,7 @@ class Tandym extends AbstractMethod
     {
         $tandymOrderUUID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORIGINAL_ORDER_UUID);
         $captureTxnUUID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID);
-        
+        $tandym_rewards = $payment->getAdditionalInformation(self::TANDYM_REWARDS_APPLIED);
         $tandymCheckoutType = $payment->getAdditionalInformation(self::TANDYM_CHECKOUT_TYPE);
 
         $this->tandymHelper->logTandymActions("Inside Validate Order Method - Call to Action - ".$transType);
@@ -648,6 +653,13 @@ class Tandym extends AbstractMethod
         //     $this->tandymHelper->logTandymActions("Inside Tandym Receipt - ".$captureTxnUUID);
         //     return false;
         // }
+
+        // if (isset($_SESSION["tandym_rewards"])) {
+        //     $tandym_rewards = $_SESSION["tandym_rewards"];
+        //     $amount += ($tandym_rewards*-1);
+        // }
+        $amount += ($tandym_rewards*-1);
+
         $orderTandymValidated = false;
     
         if ($tandymCheckoutType != 'EXPRESS') {
@@ -747,6 +759,8 @@ class Tandym extends AbstractMethod
         //     $payment->getOrder()->getBaseCurrencyCode(),
         //     $payment->getOrder()->getStoreId()
         // );
+
+
         if (!$payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORIGINAL_ORDER_UUID)) {
             $payment->setAdditionalInformation(
                 self::ADDITIONAL_INFORMATION_KEY_ORIGINAL_ORDER_UUID,

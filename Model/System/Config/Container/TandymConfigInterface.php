@@ -114,6 +114,13 @@ interface TandymConfigInterface extends IdentityInterface
      * @param string $scope
      * @return bool
      */
+    public function isTandymRewardsEnabled($scope = ScopeInterface::SCOPE_STORE);
+
+    /**
+     * Get widget script status for PDP
+     * @param string $scope
+     * @return bool
+     */
     public function isWidgetEnabledForPDP($scope = ScopeInterface::SCOPE_STORE);
 
     /**

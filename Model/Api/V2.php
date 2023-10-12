@@ -65,6 +65,9 @@ class V2 implements V2Interface
     const TANDYM_EXPRESS_REFUND_URL_PROD = "https://plugin.api.platform.poweredbytandym.com/express/refund";
     const TANDYM_EXPRESS_REFUND_URL_STAGING = "https://stagingapi.platform.poweredbytandym.com/express/refund";
 
+    const TANDYM_EXPRESS_REWARDS_URL_PROD = "https://plugin.api.platform.poweredbytandym.com/express/rewards";
+    const TANDYM_EXPRESS_REWARDS_URL_STAGING = "https://stagingapi.platform.poweredbytandym.com/express/rewards";
+
     /**
      * @var TandymConfigInterface
      */
@@ -186,7 +189,6 @@ class V2 implements V2Interface
 
         $this->dataObjectHelper = $dataObjectHelper;
         $this->apiProcessor = $apiProcessor;
-        $this->tandymConfig = $tandymConfig;
         $this->tandymHelper = $tandymHelper;
         $this->jsonHelper = $jsonHelper;
         $this->storeManager = $storeManager;

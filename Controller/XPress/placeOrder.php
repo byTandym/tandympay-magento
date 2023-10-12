@@ -24,10 +24,14 @@ use Magento\Quote\Model\MaskedQuoteIdToQuoteIdInterface;
 use Magento\Framework\App\Action\HttpPostActionInterface as HttpPostActionInterface;
 use Magento\Quote\Model\QuoteFactory;
 use Magento\Quote\Api\Data\CartInterface;
-
+use Tandym\Tandympay\Model\System\Config\Container\TandymConfigInterface;
+use Magento\Framework\HTTP\Client\Curl;
 class placeOrder extends Action implements HttpPostActionInterface
 {
 
+    const TANDYM_EXPRESS_REWARDS_URL_PROD = "https://plugin.api.platform.poweredbytandym.com/express/rewards";
+    const TANDYM_EXPRESS_REWARDS_URL_STAGING = "https://stagingapi.platform.poweredbytandym.com/express/rewards";
+    
     public function __construct(
         Context $context,
         MaskedQuoteIdToQuoteIdInterface $maskedQuoteIdToQuoteId,
@@ -42,7 +46,10 @@ class placeOrder extends Action implements HttpPostActionInterface
         JsonFactory $resultJsonFactory,
         \Magento\Sales\Model\Service\OrderService $orderService,
         \Tandym\Tandympay\Helper\Data $tandymHelper,
-        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender
+        \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
+        TandymConfigInterface $tandymConfig,
+        Data $jsonHelper, 
+        Curl $curl
     ) {
         $this->maskedQuoteIdToQuoteId = $maskedQuoteIdToQuoteId;
         $this->_storeManager = $storeManager;
@@ -57,6 +64,9 @@ class placeOrder extends Action implements HttpPostActionInterface
         $this->orderService = $orderService;
         $this->tandymHelper = $tandymHelper;
         $this->orderSender = $orderSender;
+        $this->tandymConfig = $tandymConfig;
+        $this->jsonHelper = $jsonHelper;
+        $this->curl = $curl;
         parent::__construct($context);
     }
 
@@ -70,6 +80,42 @@ class placeOrder extends Action implements HttpPostActionInterface
 
         try {
             $requestBody = json_decode($this->getRequest()->getContent());
+
+            //REWARDS APPLIED CALL
+            $_SESSION["tandym_rewards"] = 0; //-ve value to set 
+            $apiKey = $this->tandymConfig->getPublicKey();
+            $apiSecret = $this->tandymConfig->getPrivateKey();
+            $url = $this->tandymConfig->getPaymentMode() == "live" ? self::TANDYM_EXPRESS_REWARDS_URL_PROD : self::TANDYM_EXPRESS_REWARDS_URL_STAGING;
+            $payload = [
+                'transaction_receipt' => $requestBody->transaction_receipt,
+                "testMode" =>  $this->tandymConfig->getPaymentMode() == "live" ? false : true
+            ];
+
+            $this->curl->addHeader("Content-Type", "application/json");
+            $this->curl->addHeader("apikey", $apiKey);
+            $this->curl->addHeader("secret", $apiSecret);
+
+            $this->curl->post($url, json_encode($payload));
+            $this->tandymHelper->logTandymActions("Request sent to TANDYM Middleware for Rewards Applied");
+            $this->tandymHelper->logTandymActions($url);
+            $this->tandymHelper->logTandymActions($payload);
+            $responsefromtdm = $this->curl->getBody();
+            $statusCode = $this->curl->getStatus();
+
+            $this->tandymHelper->logTandymActions("Response from Tamdym Middleware with Response Status Code: $statusCode");
+            $this->tandymHelper->logTandymActions($responsefromtdm);
+            $_SESSION["tandym_rewards"] = 0;
+            $tandymRewardsApplied = 0;
+
+            if ($statusCode == "200") {
+                $body = $this->jsonHelper->jsonDecode($responsefromtdm);
+                
+                $tandymRewardsApplied =  isset($body['rewardsApplied']) && $body['rewardsApplied'] ? $body['rewardsApplied'] : 0;
+
+                $_SESSION["tandym_rewards"] = -1 * $tandymRewardsApplied;
+            }
+
+            //END REWARDS APPLIED CALL
 
             $requestshippingAddress = $requestBody->shipping_address;
             $requestbillingAddress = $requestBody->billing_address;
@@ -124,9 +170,6 @@ class placeOrder extends Action implements HttpPostActionInterface
                 ]
             ];
 
-
-
-
             $tempQuote->getBillingAddress()->addData($customerBillingAddressRemote['billing_address']);
             $tempQuote->getShippingAddress()->addData($customerShippingAddressRemote['shipping_address']);
     
@@ -138,6 +181,8 @@ class placeOrder extends Action implements HttpPostActionInterface
             $tempQuote->getPayment()->importData(['method' => 'tandympay']);
     
             $payment = $tempQuote->getPayment();
+            
+            $additionalInformation['tandym_rewards_applied'] = $_SESSION["tandym_rewards"];
             $additionalInformation['tandym_order_type'] = 'v2';
             $additionalInformation['tandym_reference_id'] = $tandym_receipt;
             $additionalInformation['tandym_original_order_uuid'] = $quoteData["reserved_order_id"];
@@ -174,13 +219,14 @@ class placeOrder extends Action implements HttpPostActionInterface
             }
         }  catch (Exception $e) {
             $this->tandymHelper->logTandymActions("TDM-XCO: Cart Total Exception -> ".$e->getMessage());
-
             $result = $this->resultJsonFactory->create();
                 $result->setHttpResponseCode(400);
             return $result->setData([
                 'error' => $e->getMessage()
             ]);
         }
+
+        $_SESSION["tandym_rewards"] = 0;
 
     }
 }

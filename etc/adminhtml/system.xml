@@ -51,22 +51,29 @@
                         <config_path>payment/tandympay/private_key</config_path>
                     </field>
                     <!--payment mode-->
-                    <field id="payment_mode" translate="label" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="payment_mode" translate="label" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Payment Mode</label>
                         <source_model>Tandym\Tandympay\Model\System\Config\Source\Payment\Mode</source_model>
                         <config_path>payment/tandympay/payment_mode</config_path>
                     </field>
                     <!-- payment action -->
-                    <field id="payment_action" translate="label" type="select" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="payment_action" translate="label" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Payment Action</label>
                         <source_model>Tandym\Tandympay\Model\System\Config\Source\Payment\PaymentAction</source_model>
                         <config_path>payment/tandympay/payment_action</config_path>
                     </field>
                     <!-- order status -->
-                    <field id="order_status" translate="label" type="select" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="order_status" translate="label" type="select" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>New Order Status for AUTHORIZE ONLY</label>
                         <source_model>Tandym\Tandympay\Model\System\Config\Source\Payment\OrderStatus</source_model>
                         <config_path>payment/tandympay/order_status</config_path>
+                    </field>
+                    <!-- show tandym rewards in order/invoice  -->
+                    <field id="show_tandym_rewards" translate="label" type="select" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Show Tandym Rewards in Order/Invoice</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <comment>Shows the Tandym Rewards in Order/Invoice</comment>
+                        <config_path>payment/tandympay/show_tandym_rewards</config_path>
                     </field>
                     <!--sort order-->
                     <field id="sort_order" translate="label" type="text" sortOrder="140" showInDefault="1" showInWebsite="1" showInStore="1">

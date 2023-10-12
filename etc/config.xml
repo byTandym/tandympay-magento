@@ -20,6 +20,7 @@
                 <order_status>processing</order_status>
                 <sort_order>0</sort_order>
                 <title>Tandym</title>
+                <show_tandym_rewards>0</show_tandym_rewards>
                 <widget_pdp>0</widget_pdp>
                 <widget_cart>0</widget_cart>
                 <widget_express_checkout>0</widget_express_checkout>

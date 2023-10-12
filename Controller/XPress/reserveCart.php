@@ -78,6 +78,7 @@ class reserveCart extends Action implements HttpPostActionInterface
     */
     public function execute() {
         
+        $_SESSION["tandym_rewards"] = 0;
         
         $maskedHashId = $this->getRequest()->getParam('cartId');
         $this->tandymHelper->logTandymActions("TDM-XCO: Initial Request from Tandym Express Checkout");
