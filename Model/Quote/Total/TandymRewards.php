@@ -28,8 +28,6 @@ class TandymRewards extends \Magento\Quote\Model\Quote\Address\Total\AbstractTot
 
     public function __construct(\Magento\Quote\Model\QuoteValidator $quoteValidator,
 								\Magento\Framework\Pricing\PriceCurrencyInterface $priceCurrency,
-                                //\Magecomp\Extrafee\Helper\Data $helperData,
-                               // \Magecomp\Extrafee\Helper\Tax $helperTax,
                                 \Magento\Tax\Model\Calculation $taxCalculator,
                                 Data $tandymHelper,
                                 TandymConfigInterface $tandymConfig
@@ -38,8 +36,6 @@ class TandymRewards extends \Magento\Quote\Model\Quote\Address\Total\AbstractTot
     {
         $this->quoteValidator = $quoteValidator;
 		$this->_priceCurrency = $priceCurrency;
-        //$this->helperData = $helperData;
-        //$this->taxHelper = $helperTax;
         $this->taxCalculator = $taxCalculator;
         $this->tandymHelper = $tandymHelper;
         $this->tandymConfig = $tandymConfig;
@@ -64,10 +60,7 @@ class TandymRewards extends \Magento\Quote\Model\Quote\Address\Total\AbstractTot
         if ($enabled && $minimumOrderAmount <= $subtotal) {
             
             $fee = isset($_SESSION["tandym_rewards"]) ? $_SESSION["tandym_rewards"] : 0;
-            $this->tandymHelper->logTandymActions("2. Inside Tandym\Tandympay\Model\Quote\Total - collect() - Reward Fee = $".$fee);
             
-            //Try to test with sample value
-            //$fee=50;
             $total->setTotalAmount('tandym_rewards', $fee);
             $total->setBaseTotalAmount('tandym_rewards', $fee);
             $total->setTandymRewards($fee);
@@ -87,24 +80,6 @@ class TandymRewards extends \Magento\Quote\Model\Quote\Address\Total\AbstractTot
 				$total->setGrandTotal($total->getGrandTotal() + $fee);
 			}
 
-            // if ($this->taxHelper->isTaxEnabled()) {
-            //     $address = $this->_getAddressFromQuote($quote);
-            //     $this->_calculateTax($address, $total);
-
-            //     $extraTaxables = $address->getAssociatedTaxables();
-            //     $extraTaxables[] = [
-            //         'code' => 'fee',
-            //         'type' => 'fee',
-            //         'quantity' => 1,
-            //         'tax_class_id' => $this->taxHelper->getTaxClassId(),
-            //         'unit_price' => $fee,
-            //         'base_unit_price' => $fee,
-            //         'price_includes_tax' => false,
-            //         'associated_item_code' => false
-            //     ];
-
-            //     $address->setAssociatedTaxables($extraTaxables);
-            // }
 
 		}
         return $this;
@@ -123,7 +98,7 @@ class TandymRewards extends \Magento\Quote\Model\Quote\Address\Total\AbstractTot
         $subtotal = $quote->getSubtotal();
         $fee = $quote->getTandymRewards();
         $address = $this->_getAddressFromQuote($quote);
-        $this->tandymHelper->logTandymActions("2. Inside Tandym\Tandympay\Model\Quote\Total - fetch() - fee = ".$fee);
+        
         $result = [];
         if ($enabled && ($minimumOrderAmount <= $subtotal) && $fee) {
             $result = [
@@ -131,21 +106,6 @@ class TandymRewards extends \Magento\Quote\Model\Quote\Address\Total\AbstractTot
                 'title' => 'Tandym Rewards',
                 'value' => $fee
             ];
-
-            // if ($this->taxHelper->isTaxEnabled() && $this->taxHelper->displayInclTax()) {
-            //      $result [] = [
-            //         'code' => 'fee',
-            //         'value' => $fee + $address->getFeeTax(),
-            //         'title' => __($this->helperData->getFeeLabel()),
-            //     ];
-            // }
-            // if ($this->taxHelper->isTaxEnabled() && $this->taxHelper->displayBothTax()) {
-            //     $result [] = [
-            //         'code' => 'fee',
-            //         'value' => $fee + $address->getFeeTax(),
-            //         'title' => __($this->helperData->getFeeLabel()),
-            //     ];
-            // }
         }
 
         return $result;
@@ -158,7 +118,7 @@ class TandymRewards extends \Magento\Quote\Model\Quote\Address\Total\AbstractTot
      */
     public function getLabel()
     {
-        return __('Extra Fee');
+        return __('Tandym Rewards');
     }
 
     /**
