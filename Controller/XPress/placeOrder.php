@@ -26,12 +26,20 @@ use Magento\Quote\Model\QuoteFactory;
 use Magento\Quote\Api\Data\CartInterface;
 use Tandym\Tandympay\Model\System\Config\Container\TandymConfigInterface;
 use Magento\Framework\HTTP\Client\Curl;
+use \Magento\Customer\Model\Session as CustomerSession;
+
 class placeOrder extends Action implements HttpPostActionInterface
 {
 
     const TANDYM_EXPRESS_REWARDS_URL_PROD = "https://plugin.api.platform.poweredbytandym.com/express/rewards";
     const TANDYM_EXPRESS_REWARDS_URL_STAGING = "https://stagingapi.platform.poweredbytandym.com/express/rewards";
     
+    
+    /**
+     * @var CustomerSession
+     */
+    protected $customerSession;
+
     public function __construct(
         Context $context,
         MaskedQuoteIdToQuoteIdInterface $maskedQuoteIdToQuoteId,
@@ -49,7 +57,8 @@ class placeOrder extends Action implements HttpPostActionInterface
         \Magento\Sales\Model\Order\Email\Sender\OrderSender $orderSender,
         TandymConfigInterface $tandymConfig,
         Data $jsonHelper, 
-        Curl $curl
+        Curl $curl,
+        CustomerSession $customerSession
     ) {
         $this->maskedQuoteIdToQuoteId = $maskedQuoteIdToQuoteId;
         $this->_storeManager = $storeManager;
@@ -67,6 +76,7 @@ class placeOrder extends Action implements HttpPostActionInterface
         $this->tandymConfig = $tandymConfig;
         $this->jsonHelper = $jsonHelper;
         $this->curl = $curl;
+        $this->customerSession = $customerSession;
         parent::__construct($context);
     }
 
@@ -131,6 +141,13 @@ class placeOrder extends Action implements HttpPostActionInterface
             $this->tandymHelper->logTandymActions("TDM-XCO: Place Order Request from Tandym for QuoteId: ".$quoteId);
 
             $tempQuote = $this->quote->create()->load($quoteId);
+
+            $customerId = $tempQuote->getCustomerId();
+            
+            if ($customerId) {
+                $this->customerSession->loginById($customerId);
+            }
+            
             $quoteData = $tempQuote->getData();
 
             

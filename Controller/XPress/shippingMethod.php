@@ -32,8 +32,15 @@ use Magento\Quote\Api\ShippingMethodManagementInterface;
 use Magento\Quote\Model\Cart\ShippingMethodConverter;
 use Magento\Quote\Model\Quote\TotalsCollector;
 
+use \Magento\Customer\Model\Session as CustomerSession;
+
+
 class ShippingMethod extends Action implements HttpPostActionInterface
 {
+    /**
+     * @var CustomerSession
+     */
+    protected $customerSession;
 
     public function __construct(
         Context $context,
@@ -52,7 +59,8 @@ class ShippingMethod extends Action implements HttpPostActionInterface
         ShippingMethodManagementInterface $shippingMethodManagement,
         ShippingMethodConverter $shippingMethodConverter,
         \Tandym\Tandympay\Helper\Data $tandymHelper,
-        TotalsCollector $totalsCollector
+        TotalsCollector $totalsCollector,
+        CustomerSession $customerSession
     ) {
         $this->maskedQuoteIdToQuoteId = $maskedQuoteIdToQuoteId;
         $this->_storeManager = $storeManager;
@@ -70,6 +78,7 @@ class ShippingMethod extends Action implements HttpPostActionInterface
         $this->shippingMethodConverter = $shippingMethodConverter;
         $this->totalsCollector = $totalsCollector;
         $this->tandymHelper = $tandymHelper;
+        $this->customerSession = $customerSession;
         parent::__construct($context);
     }
    
@@ -92,6 +101,12 @@ class ShippingMethod extends Action implements HttpPostActionInterface
             $this->tandymHelper->logTandymActions("TDM-XCO: Getting Available Shipping Methods for QuoteId: ".$quoteId);
 
             $tempQuote = $this->quote->create()->load($quoteId);
+
+            $customerId = $tempQuote->getCustomerId();
+            
+            if ($customerId) {
+                $this->customerSession->loginById($customerId);
+            }
 
             // Get all visible items in cart
             $quote = $tempQuote;

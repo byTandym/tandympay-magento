@@ -33,8 +33,15 @@ use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Api\ShippingMethodManagementInterface;
 use Magento\Quote\Model\Cart\ShippingMethodConverter;
 
+use \Magento\Customer\Model\Session as CustomerSession;
+
 class getTotals extends Action implements HttpPostActionInterface
 {
+
+    /**
+     * @var CustomerSession
+     */
+    protected $customerSession;
 
     public function __construct(
         Context $context,
@@ -52,7 +59,8 @@ class getTotals extends Action implements HttpPostActionInterface
         CheckoutSession $checkoutSession,
         ShippingMethodManagementInterface $shippingMethodManagement,
         ShippingMethodConverter $shippingMethodConverter,
-        \Tandym\Tandympay\Helper\Data $tandymHelper
+        \Tandym\Tandympay\Helper\Data $tandymHelper,
+        CustomerSession $customerSession
     ) {
         $this->maskedQuoteIdToQuoteId = $maskedQuoteIdToQuoteId;
         $this->_storeManager = $storeManager;
@@ -69,6 +77,7 @@ class getTotals extends Action implements HttpPostActionInterface
         $this->shippingMethodManagement = $shippingMethodManagement;
         $this->shippingMethodConverter = $shippingMethodConverter;
         $this->tandymHelper = $tandymHelper;
+        $this->customerSession = $customerSession;
         parent::__construct($context);
     }
    
@@ -95,7 +104,11 @@ class getTotals extends Action implements HttpPostActionInterface
 
 
             $tempQuote = $this->quote->create()->load($quoteId);
-
+            $customerId = $tempQuote->getCustomerId();
+            
+            if ($customerId) {
+                $this->customerSession->loginById($customerId);
+            }
             // Get all visible items in cart
             $quote = $tempQuote;
 
