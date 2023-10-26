@@ -33,7 +33,7 @@ use Magento\Quote\Model\Cart\ShippingMethodConverter;
 
 use \Magento\Customer\Model\Session as CustomerSession;
 
-class reserveCart extends Action implements HttpPostActionInterface
+class resetCart extends Action
 {
     /**
      * @var CustomerSession
@@ -89,21 +89,26 @@ class reserveCart extends Action implements HttpPostActionInterface
         $_SESSION["tandym_rewards"] = 0;
         
         $maskedHashId = $this->getRequest()->getParam('cartId');
-        $this->tandymHelper->logTandymActions("TDM-XCO: Initial Request from Tandym Express Checkout");
+        $resetReservedId = $this->getRequest()->getParam('resetOrder');
+        $resetAction = null;
 
         $quoteId = "";
         try {
             $quoteId = $this->maskedQuoteIdToQuoteId->execute($maskedHashId);
-            $this->tandymHelper->logTandymActions("TDM-XCO: Guest QuoteId:".$quoteId);
         } catch (NoSuchEntityException $e) {
             $quoteId = $maskedHashId;
-            $this->tandymHelper->logTandymActions("TDM-XCO: Customer QuoteId:".$quoteId);
         }
     
         try {
             $tempQuote = $this->quote->create()->load($quoteId);
  
-            $tempQuote->reserveOrderId();//->getReservedOrderId();
+            if ($resetReservedId == 1) {
+                $tempQuote->setReservedOrderId(null);
+                $resetAction = true;
+            } else {
+                $tempQuote->reserveOrderId();
+                $resetAction = false;
+            }
             
             $customerId = $tempQuote->getCustomerId();
 
@@ -116,11 +121,11 @@ class reserveCart extends Action implements HttpPostActionInterface
 
             
             $quoteData  = $tempQuote->getData();
+            
             if (isset($quoteData["subtotal"])) {
 
                 $result = $this->resultJsonFactory->create();
                 $result->setHttpResponseCode(200);
-                $this->tandymHelper->logTandymActions("TDM-XCO: Reserved Order: ".$quoteData["reserved_order_id"]);
                 return $result->setData([
                     'quoteId' => strval($quoteId),
                     'reserveOrderId' => $quoteData["reserved_order_id"],
@@ -128,14 +133,12 @@ class reserveCart extends Action implements HttpPostActionInterface
                     'subtotal_with_discount' => floatval($quoteData["subtotal_with_discount"]),
                     'discount_on_subtotal'=> floatval($quoteData["subtotal"]) - floatval($quoteData["subtotal_with_discount"]),
                     'grand_total' => floatval($quoteData["grand_total"]),
-                    'other_amount_total' => floatval($quoteData["grand_total"]) - floatval($quoteData["subtotal_with_discount"])
-                    //,
-                    //'quoteData' => $quoteData
+                    'other_amount_total' => floatval($quoteData["grand_total"]) - floatval($quoteData["subtotal_with_discount"]),
+                    'resetACtion' => $resetAction
                 ]);
             } else {
                 $result = $this->resultJsonFactory->create();
                 $result->setHttpResponseCode(400);
-                $this->tandymHelper->logTandymActions("TDM-XCO: Error -> QuoteID: ".$quoteId);
                 return $result->setData([
                     'status' => "error - not found",
                     'quoteId' => strval($quoteId)
@@ -143,7 +146,6 @@ class reserveCart extends Action implements HttpPostActionInterface
             }
            
         } catch (Exception $e) {
-            $this->tandymHelper->logTandymActions("TDM-XCO: ReserveCart - Exception -> ".$e->getMessage());
             $result = $this->resultJsonFactory->create();
             $result->setHttpResponseCode(400);
             return $result->setData([

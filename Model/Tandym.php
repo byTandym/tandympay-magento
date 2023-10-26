@@ -472,7 +472,9 @@ class Tandym extends AbstractMethod
      */
     public function refund(InfoInterface $payment, $amount)
     {
-        $tandym_rewards = $payment->getAdditionalInformation(self::TANDYM_REWARDS_APPLIED);
+        $tandym_rewards_enabled = $this->tandymConfig->isTandymRewardsEnabled();
+
+        $tandym_rewards = $tandym_rewards_enabled ? $payment->getAdditionalInformation(self::TANDYM_REWARDS_APPLIED) : 0;
         $amount += ($tandym_rewards*-1);
         
         $this->tandymHelper->logTandymActions("****Refund Started****");
@@ -642,9 +644,13 @@ class Tandym extends AbstractMethod
      */
     private function validateTandymOrder($payment, $amount, $transType = "AUTHORIZE_CAPTURE")
     {
+
+        $tandym_rewards_enabled = $this->tandymConfig->isTandymRewardsEnabled();
+
+        $tandym_rewards = $tandym_rewards_enabled ? $payment->getAdditionalInformation(self::TANDYM_REWARDS_APPLIED) : 0;
+
         $tandymOrderUUID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_ORIGINAL_ORDER_UUID);
         $captureTxnUUID = $payment->getAdditionalInformation(self::ADDITIONAL_INFORMATION_KEY_REFERENCE_ID);
-        $tandym_rewards = $payment->getAdditionalInformation(self::TANDYM_REWARDS_APPLIED);
         $tandymCheckoutType = $payment->getAdditionalInformation(self::TANDYM_CHECKOUT_TYPE);
 
         $this->tandymHelper->logTandymActions("Inside Validate Order Method - Call to Action - ".$transType);
