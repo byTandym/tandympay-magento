@@ -265,10 +265,10 @@ class V2 implements V2Interface
     {
         //$url = $this->tandymConfig->getPaymentMode() == "live" ? self::TANDYM_VALIDATE_URL_PROD : self::TANDYM_VALIDATE_URL_STAGING;
         if ($tandymCheckoutType == "EXPRESS") {
-            $url = self::TANDYM_EXPRESS_VOID_STAGING;
+            $url = self::TANDYM_EXPRESS_VOID_URL_STAGING;
             $paymentMode = $this->tandymConfig->getPaymentMode();
             if ($paymentMode == "live") {
-                $url = self::TANDYM_EXPRESS_VOID_PROD;
+                $url = self::TANDYM_EXPRESS_VOID_URL_PROD;
             }
         } else {
             $url =  self::TANDYM_VOID_URL;
@@ -388,7 +388,7 @@ class V2 implements V2Interface
         
         $apiKey = $this->tandymConfig->getPublicKey();
         $apiSecret = $this->tandymConfig->getPrivateKey();
-        $this->tandymHelper->logTandymActions("Refund initiated on failed order with key".$apiKey);
+        $this->tandymHelper->logTandymActions("Refund initiated for express order with key".$apiKey);
 
         $payload = [
             "type"  =>  "refund",
