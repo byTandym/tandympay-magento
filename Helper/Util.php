@@ -58,7 +58,7 @@ class Util
      */
     protected static function formatMoney($amount)
     {
-        $amount = round($amount, Data::PRECISION);
+        $amount = round( ($amount ?? 0) , Data::PRECISION);
         return sprintf(self::MONEY_FORMAT, $amount);
     }
 }

@@ -191,7 +191,7 @@ class Data extends AbstractHelper
     public function getAmountInCents($amount)
     {
         return (int)(round(
-            $amount * 100,
+            ($amount ?? 0) * 100,
             self::PRECISION
         ));
     }
