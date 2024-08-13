@@ -38,8 +38,25 @@ class placeOrder extends Action implements HttpPostActionInterface
     /**
      * @var CustomerSession
      */
-    protected $customerSession;
 
+    protected $maskedQuoteIdToQuoteId;
+    protected $_storeManager;
+    protected $_product;
+    protected $_formkey;
+    protected $quote;
+    protected $quoteRepository;
+    protected $quoteManagement;
+    protected $customerFactory;
+    protected $customerRepository;
+    protected $resultJsonFactory;
+    protected $orderService;
+    protected $tandymHelper;
+    protected $orderSender;
+    protected $tandymConfig;
+    protected $jsonHelper;
+    protected $curl;
+    protected $customerSession;
+    
     public function __construct(
         Context $context,
         MaskedQuoteIdToQuoteIdInterface $maskedQuoteIdToQuoteId,
