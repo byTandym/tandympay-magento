@@ -15,7 +15,9 @@ class TandymRewards extends \Magento\Quote\Model\Quote\Address\Total\AbstractTot
 	protected $_priceCurrency;
 	protected $taxHelper;
     private $taxCalculator;
-
+    protected $tandymHelper;
+    protected $tandymConfig;
+    
     /**
      * Collect grand total address amount
      *

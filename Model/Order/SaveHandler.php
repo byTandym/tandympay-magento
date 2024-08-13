@@ -64,6 +64,7 @@ class SaveHandler
      */
     private $productMetadata;
 
+    protected $quoteFactory;
     /**
      * SaveHandler constructor.
      * @param CustomerSession $customerSession

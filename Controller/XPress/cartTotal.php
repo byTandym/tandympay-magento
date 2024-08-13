@@ -36,6 +36,21 @@ use Magento\Quote\Model\Cart\ShippingMethodConverter;
 class cartTotal extends Action implements HttpPostActionInterface
 {
 
+    protected $maskedQuoteIdToQuoteId;
+    protected $_storeManager;
+    protected $_product;
+    protected $_formkey;
+    protected $quote;
+    protected $quoteRepository;
+    protected $quoteManagement;
+    protected $customerFactory;
+    protected $customerRepository;
+    protected $resultJsonFactory;
+    protected $orderService;
+    protected $checkoutSession;
+    protected $shippingMethodManagement;
+    protected $shippingMethodConverter;
+    
     public function __construct(
         Context $context,
         MaskedQuoteIdToQuoteIdInterface $maskedQuoteIdToQuoteId,

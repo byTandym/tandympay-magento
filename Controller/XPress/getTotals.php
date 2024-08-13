@@ -41,8 +41,24 @@ class getTotals extends Action implements HttpPostActionInterface
     /**
      * @var CustomerSession
      */
+    
+    protected $maskedQuoteIdToQuoteId;
+    protected $_storeManager;
+    protected $_product;
+    protected $_formkey;
+    protected $quote;
+    protected $quoteRepository;
+    protected $quoteManagement;
+    protected $customerFactory;
+    protected $customerRepository;
+    protected $resultJsonFactory;
+    protected $orderService;
+    protected $checkoutSession;
+    protected $shippingMethodManagement;
+    protected $shippingMethodConverter;
+    protected $tandymHelper;
     protected $customerSession;
-
+    
     public function __construct(
         Context $context,
         MaskedQuoteIdToQuoteIdInterface $maskedQuoteIdToQuoteId,
